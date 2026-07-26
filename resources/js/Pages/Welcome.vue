@@ -223,16 +223,12 @@ const mvpAward = computed(() => {
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <!-- Custom SVG Crown/Cup Logo -->
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-500 to-amber-500 flex items-center justify-center shadow-lg shadow-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 5H17V3H7V5H5C3.9 5 3 5.9 3 7V9C3 11.24 4.54 13.12 6.63 13.68C7.43 15.42 9.07 16.7 11 16.93V19H9V21H15V19H13V16.93C14.93 16.7 16.57 15.42 17.37 13.68C19.46 13.12 21 11.24 21 9V7C21 5.9 20.1 5 19 5ZM5 9V7H7V9.75C7 10.66 6.37 11 5.75 11C5.33 11 5 10.55 5 9ZM19 9C19 10.55 18.67 11 18.25 11C17.63 11 17 10.66 17 9.75V7H19V9Z"/>
-                        </svg>
-                    </div>
+                   <img src="/logo.png" alt="logo" class="w-10 h-10">
                     <div>
                         <h1 class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
                             {{ competition ? competition.name : 'MLBB AGUSTUSAN TOURNAMENT' }}
                         </h1>
-                        <p class="text-xs text-slate-600 font-medium">SISTEM MANAJEMEN TURNAMEN INTERAKTIF</p>
+                        
                     </div>
                 </div>
 
@@ -275,14 +271,7 @@ const mvpAward = computed(() => {
                     </button>
                 </nav>
 
-                <div class="flex items-center gap-3">
-                    <Link 
-                        href="/dashboard" 
-                        class="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-200 hover:border-slate-500 hover:text-slate-900 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold tracking-wide transition-all"
-                    >
-                        Dashboard Admin
-                    </Link>
-                </div>
+              
             </div>
         </header>
 
@@ -559,44 +548,44 @@ const mvpAward = computed(() => {
                                Col4 left=1090: GF top=250
                         -->
                         <div class="bracket-grid-container overflow-x-auto pb-6">
-                            <div class="bracket-grid" style="width:1320px; height:560px;">
+                            <div class="bracket-grid" style="width:1060px; height:560px;">
 
                                 <!-- SVG OVERLAY: all connecting lines drawn first (behind cards) -->
                                 <svg class="bracket-svg" xmlns="http://www.w3.org/2000/svg" style="z-index:1">
 
                                     <!-- ══ Col0 → Col1: UB R1 winners → UB Semis (straight horizontal) ══ -->
-                                    <line x1="230" y1="85"  x2="280" y2="85"  stroke="#94a3b8" stroke-width="2"/>
-                                    <line x1="230" y1="235" x2="280" y2="235" stroke="#94a3b8" stroke-width="2"/>
+                                    <line x1="190" y1="85"  x2="225" y2="85"  stroke="#94a3b8" stroke-width="2"/>
+                                    <line x1="190" y1="235" x2="225" y2="235" stroke="#94a3b8" stroke-width="2"/>
 
                                     <!-- ══ UB Semis winners → UB Final (merge bracket) ══
-                                         Top card (85) and bottom card (235) right side x=500,
-                                         both go to midpoint x=525, converge at y=160, enter UB Final left x=550 -->
-                                    <path d="M 500 85  H 525 V 160 H 550" stroke="#94a3b8" stroke-width="2" fill="none"/>
-                                    <path d="M 500 235 H 525 V 160"        stroke="#94a3b8" stroke-width="2" fill="none"/>
+                                         Top card (85) and bottom card (235) right side x=405,
+                                         both go to midpoint x=422, converge at y=160, enter UB Final left x=440 -->
+                                    <path d="M 405 85  H 422 V 160 H 440" stroke="#94a3b8" stroke-width="2" fill="none"/>
+                                    <path d="M 405 235 H 422 V 160"        stroke="#94a3b8" stroke-width="2" fill="none"/>
 
                                     <!-- ══ UB Semis LOSERS → LB Semis (STRAIGHT VERTICAL DOWN, dashed red) ══
                                          Both losers in Col1. LB Semis card is also in Col1.
                                          Exit from bottom of UB Semis cards (y=130 and y=280) going straight down
-                                         to top of LB Semis card (y=415). Both use center-x of col1 = 390.
-                                         Offset by ±10px to show two separate loser paths. -->
-                                    <line x1="375" y1="130" x2="375" y2="415" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
-                                    <line x1="405" y1="280" x2="405" y2="415" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+                                         to top of LB Semis card (y=415). Both use center-x of col1 = 315.
+                                         Offset by ±15px to show two separate loser paths. -->
+                                    <line x1="300" y1="130" x2="300" y2="415" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
+                                    <line x1="330" y1="280" x2="330" y2="415" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.8"/>
 
                                     <!-- ══ UB Final winner → GF top slot (GOLDEN) ══
-                                         UB Final cY=160 → right to x=1070 → down to GF team-A row y=275 → left into GF x=1090 -->
-                                    <path d="M 770 160 H 1070 V 275 H 1090" stroke="#eab308" stroke-width="2.5" fill="none"/>
+                                         UB Final cY=160 → right to x=852 → down to GF team-A row y=275 → left into GF x=870 -->
+                                    <path d="M 620 160 H 852 V 275 H 870" stroke="#eab308" stroke-width="2.5" fill="none"/>
 
                                     <!-- ══ UB Final LOSER → LB Final (dashed red) ══
-                                         UB Final cY=160 → right to gap x=815 → drop to LB Final cY=460 → left into LB Final x=820 -->
-                                    <path d="M 770 160 H 815 V 460 H 820" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" fill="none" opacity="0.8"/>
+                                         UB Final cY=160 → right to gap x=637 → drop to LB Final cY=460 → left into LB Final x=655 -->
+                                    <path d="M 620 160 H 637 V 460 H 655" stroke="#f87171" stroke-width="1.5" stroke-dasharray="5,3" fill="none" opacity="0.8"/>
 
                                     <!-- ══ LB Semis winner → LB Final (horizontal, passes below UB Final card safely) ══
-                                         LB Semis right=500, cY=460 → straight right → LB Final left=820, cY=460 -->
-                                    <line x1="500" y1="460" x2="820" y2="460" stroke="#94a3b8" stroke-width="2"/>
+                                         LB Semis right=405, cY=460 → straight right → LB Final left=655, cY=460 -->
+                                    <line x1="405" y1="460" x2="655" y2="460" stroke="#94a3b8" stroke-width="2"/>
 
                                     <!-- ══ LB Final winner → GF bottom slot (gray) ══
-                                         LB Final right=1040, cY=460 → right to x=1070 → up to GF team-B row y=320 → left into GF x=1090 -->
-                                    <path d="M 1040 460 H 1070 V 320 H 1090" stroke="#94a3b8" stroke-width="2" fill="none"/>
+                                         LB Final right=835, cY=460 → right to x=852 → up to GF team-B row y=320 → left into GF x=870 -->
+                                    <path d="M 835 460 H 852 V 320 H 870" stroke="#94a3b8" stroke-width="2" fill="none"/>
 
                                 </svg>
 
@@ -644,7 +633,7 @@ const mvpAward = computed(() => {
                                 </div>
 
                                 <!-- ════ COL 1: UB SEMIFINALS (top) + LB SEMIFINALS (bottom) ════ -->
-                                <div class="bracket-col" style="left:280px; width:220px">
+                                <div class="bracket-col" style="left:225px">
                                     <!-- UB Semis label at very top -->
                                     <div class="bracket-col-label text-yellow-700">UB SEMIFINALS</div>
 
@@ -713,7 +702,7 @@ const mvpAward = computed(() => {
                                 </div>
 
                                 <!-- ════ COL 2: UB FINAL only ════ -->
-                                <div class="bracket-col" style="left:550px">
+                                <div class="bracket-col" style="left:440px">
                                     <div class="bracket-col-label text-yellow-700">UB FINAL</div>
                                     <!-- UB_R3_M1: top=115, cY=160 (midpoint of cY=85 and cY=235) -->
                                     <div v-if="playoffRounds.upper['Upper Bracket Final']" class="bracket-match-card" style="top:115px">
@@ -737,7 +726,7 @@ const mvpAward = computed(() => {
                                 </div>
 
                                 <!-- ════ COL 3: LB FINAL ════ -->
-                                <div class="bracket-col" style="left:820px">
+                                <div class="bracket-col" style="left:655px">
                                     <!-- LB Final label at bottom area -->
                                     <div style="position:absolute; top:385px; left:0; width:100%; text-align:center; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.08em; color:#dc2626;">LB FINAL</div>
                                     <!-- LB_R2_M1: top=415, cY=460 — same height as LB Semis -->
@@ -762,7 +751,7 @@ const mvpAward = computed(() => {
                                 </div>
 
                                 <!-- ════ COL 4: GRAND FINAL ════ -->
-                                <div class="bracket-col" style="left:1090px">
+                                <div class="bracket-col" style="left:870px">
                                     <div class="bracket-col-label text-yellow-700">👑 GRAND FINAL</div>
                                     <!-- GF: top=250, team-A row cY≈275, team-B row cY≈320 -->
                                     <div v-if="playoffRounds.grand[0]" class="bracket-match-card gf-card" style="top:250px">
@@ -797,7 +786,7 @@ const mvpAward = computed(() => {
                             </div>
                         </div>
                     </div>
-
+                </div>
 
                 <!-- Tab: Leaderboard Lane (Best Players per Lane) -->
                 <div v-if="activeTab === 'leaderboard'" class="space-y-8 animate-fadeIn">
@@ -984,8 +973,6 @@ const mvpAward = computed(() => {
                         </div>
                     </div>
                 </div>
-
-                </div>
             </div>
 
         </main>
@@ -1026,7 +1013,7 @@ const mvpAward = computed(() => {
 /* The actual fixed-size grid canvas */
 .bracket-grid {
     position: relative;
-    width: 1280px;    /* 5 cols × 220px + 4 gaps × 55px = 1280px */
+    width: 1060px;    /* 5 cols × 180px + 4 gaps × 35px = 1060px */
     height: 560px;
     min-height: 560px;
     margin: 0 auto;
@@ -1043,10 +1030,10 @@ const mvpAward = computed(() => {
     overflow: visible;
 }
 
-/* Each column is 220px wide, absolutely placed */
+/* Each column is 180px wide, absolutely placed */
 .bracket-col {
     position: absolute;
-    width: 220px;
+    width: 180px;
     height: 560px;
 }
 
@@ -1080,7 +1067,7 @@ const mvpAward = computed(() => {
 .bracket-match-card {
     position: absolute;
     left: 0;
-    width: 220px;
+    width: 180px;
     z-index: 10;
     background: white;
     border: 1px solid #e2e8f0;
