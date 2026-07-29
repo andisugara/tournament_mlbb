@@ -27,55 +27,95 @@ class TournamentSeeder extends Seeder
             ]
         );
 
-        // 2. Setup 8 Teams
+        // 2. Setup 9 Teams
         $teamsData = [
+            ['name' => 'Superr medmon', 'logo' => null],
             ['name' => 'Project VII', 'logo' => null],
-            ['name' => 'Clan Mia', 'logo' => null],
-            ['name' => 'falkon knight', 'logo' => null],
-            ['name' => 'Superr Medmon', 'logo' => null],
-            ['name' => 'Ihsani Tim', 'logo' => null],
-            ['name' => 'Fikri Tim', 'logo' => null],
-            ['name' => 'kurasi 1', 'logo' => null],
-            ['name' => 'Produksi', 'logo' => null],
+            ['name' => 'Proximity Clan', 'logo' => null],
+            ['name' => 'Tim Teknis', 'logo' => null],
+            ['name' => 'Octagram', 'logo' => null],
+            ['name' => 'Wo makan siang mana wo', 'logo' => null],
+            ['name' => 'Falkon Knight', 'logo' => null],
+            ['name' => 'CROPINGIYAH', 'logo' => null],
+            ['name' => 'Unknown Team', 'logo' => null],
+        ];
+
+        $teamsPlayers = [
+            'Superr medmon' => [
+                'gold_lane' => 'minaaa -  71447718 (2134)',
+                'exp_lane' => 'Senzuu. - 223652701 (9171)',
+                'mid_lane' => 'H34THCL1FF - 61527485 (2108)',
+                'jungle' => 'Kanjutt. - 669019899 (8664)',
+                'roam' => 'Arssc - 37204989 (2060)',
+            ],
+            'Project VII' => [
+                'gold_lane' => 'Andisuuu - 242766700 (9278)',
+                'exp_lane' => 'Nann   Always   Fine - 593670878 (8369)',
+                'mid_lane' => '~ D•Ragon ~ - 646925374 (8590)',
+                'jungle' => 'Ryland Grace. - 49922916(2004)',
+                'roam' => 'Reze. - 79856072 (2221)',
+            ],
+            'Proximity Clan' => [
+                'gold_lane' => 'VIOLEnTTT - 209342882 (9075)',
+                'exp_lane' => 'karlcenat - 2008502411 (19452)',
+                'mid_lane' => 'waqqir - 192488083 (2986)',
+                'jungle' => 'Rhapsody. -  341039557 (2232)',
+                'roam' => 'EL PARFUME - 785500472 (12127)',
+            ],
+            'Tim Teknis' => [
+                'gold_lane' => 'SugaringCandy - 59411620 (2101)',
+                'exp_lane' => 'irp4ndi - 270870526 (9406)',
+                'mid_lane' => 'Nakirei - 81531805 (2152)',
+                'jungle' => 'Alpha - 131212857 (2670)',
+                'roam' => 'Muuns Raja Garam. - 25159437 (2205)',
+            ],
+            'Octagram' => [
+                'gold_lane' => 'DwayneJohnson - 832873158 (12313)',
+                'exp_lane' => 'Sam96 -  1023318828 (13074)',
+                'mid_lane' => 'izthar - 48031582 (2078)',
+                'jungle' => 'ApaSalahKu - 12239898 (2013)',
+                'roam' => 'B I G B O S S - 175168448 (2909)',
+            ],
+            'Wo makan siang mana wo' => [
+                'gold_lane' => '697099 - 39754347 (2060)',
+                'exp_lane' => 'Maman Silet - 59091192 (2103)',
+                'mid_lane' => 'Alexander The Great - 138595883 (2695)',
+                'jungle' => 'Souso - 36102807 (2057)',
+                'roam' => 'Hell Kerbecs - 283263201 (15373)',
+            ],
+            'Falkon Knight' => [
+                'gold_lane' => 'Falkon Gold - 44444 (4444)',
+                'exp_lane' => 'Falkon Exp - 55555 (5555)',
+                'mid_lane' => 'Falkon Mid - 22222 (2222)',
+                'jungle' => 'Falkon Jungle - 11111 (1111)',
+                'roam' => 'Falkon Roam - 33333 (3333)',
+            ],
+            'CROPINGIYAH' => [
+                'gold_lane' => 'KyWazowSky. ✙ - 248549911 (9296)',
+                'exp_lane' => 'tim pa rizky - 434975478 (2276)',
+                'mid_lane' => "Wand'z - 726937318 (8904)",
+                'jungle' => 'Oveer. - 169432777 (2883)',
+                'roam' => 'XPANDER™ - 719940772 (8868)',
+            ],
+            'Unknown Team' => [
+                'gold_lane' => 'Unknown Gold - 15151 (1515)',
+                'exp_lane' => 'Unknown Exp - 16161 (1616)',
+                'mid_lane' => 'Unknown Mid - 13131 (1313)',
+                'jungle' => 'Unknown Jungle - 12121 (1212)',
+                'roam' => 'Unknown Roam - 14141 (1414)',
+            ],
         ];
 
         $teams = [];
         foreach ($teamsData as $data) {
-            $teams[] = Team::create($data);
-        }
+            $team = Team::create($data);
+            $teams[] = $team;
 
-        // 3. Setup Players (5 players per team with distinct roles)
-        $roles = ['gold_lane', 'exp_lane', 'mid_lane', 'jungle', 'roam'];
-        $playerNames = [
-            'gold_lane' => ['Kelra', 'Skylar', 'CW', 'Caderaa', 'Eman', 'Nino', 'Watt', 'Dee'],
-            'exp_lane' => ['Fluffy', 'Dyrennn', 'Lutpii', 'Luke', 'Super Kenn', 'Papi Chulo', 'Kimura', 'Karss'],
-            'mid_lane' => ['Claw Kun', 'Clayyy', 'Sanz', 'Aboy', 'Moreno', 'Cr1sty', 'Keyz', 'SwayLow'],
-            'jungle' => ['Anavel', 'Sutsujin', 'Kairi', 'Reyy', 'Kenn', 'Tazz', 'Rey', 'Vincentt'],
-            'roam' => ['Dreams', 'Idok', 'Kiboy', 'Baloyskie', 'Kyy', 'Rasy', 'Muezza', 'AudyTzy'],
-        ];
-
-        foreach ($teams as $index => $team) {
-            foreach ($roles as $role) {
-                $name = '';
-                if ($team->name === 'Project VII') {
-                    if ($role === 'gold_lane') $name = 'gara';
-                    elseif ($role === 'exp_lane') $name = 'nandi';
-                    elseif ($role === 'mid_lane') $name = 'agung';
-                    elseif ($role === 'jungle') $name = 'pathan';
-                    elseif ($role === 'roam') $name = 'maul';
-                } elseif ($team->name === 'falkon knight') {
-                    if ($role === 'gold_lane') $name = 'rendy';
-                    elseif ($role === 'exp_lane') $name = 'ezy';
-                    elseif ($role === 'mid_lane') $name = 'Rahmat dhani';
-                    elseif ($role === 'jungle') $name = 'fajar';
-                    elseif ($role === 'roam') $name = 'cky';
-                } else {
-                    $name = $team->name . ' ' . $playerNames[$role][$index];
-                }
-
+            $players = $teamsPlayers[$team->name];
+            foreach ($players as $role => $playerName) {
                 Player::create([
                     'team_id' => $team->id,
-                    'name' => $name,
+                    'name' => $playerName,
                     'role' => $role,
                 ]);
             }
@@ -84,7 +124,7 @@ class TournamentSeeder extends Seeder
         // 4. Setup Competition Setup
         $competition = CompetitionSetup::create([
             'name' => 'Kabayan Group MLBB',
-            'total_teams' => 8,
+            'total_teams' => 9,
             'teams_advance_to_playoff' => 6,
             'upper_bracket_direct_seed' => 2,
             'regular_season_best_of' => 3,
@@ -108,7 +148,7 @@ class TournamentSeeder extends Seeder
             'format' => 'DOUBLE_ELIMINATION',
         ]);
 
-        // 6. Generate Round Robin Matches (56 matches for 8 teams, double round robin)
+        // 6. Generate Round Robin Matches (72 matches for 9 teams, double round robin)
         $matchPairs = [];
         for ($i = 0; $i < count($teams); $i++) {
             for ($j = $i + 1; $j < count($teams); $j++) {
@@ -157,10 +197,10 @@ class TournamentSeeder extends Seeder
                 $matchWinner = 1;
             } elseif ($teamB->name === 'Project VII') {
                 $matchWinner = 2;
-            } elseif ($teamA->name === 'falkon knight') {
-                $matchWinner = 1; // falkon knight wins against others
-            } elseif ($teamB->name === 'falkon knight') {
-                $matchWinner = 2; // falkon knight wins against others
+            } elseif ($teamA->name === 'Falkon Knight') {
+                $matchWinner = 1; // Falkon Knight wins against others
+            } elseif ($teamB->name === 'Falkon Knight') {
+                $matchWinner = 2; // Falkon Knight wins against others
             } else {
                 $matchWinner = rand(1, 2);
             }
@@ -206,52 +246,52 @@ class TournamentSeeder extends Seeder
                     $kills = $isWinner ? rand(3, 8) : rand(0, 4);
                     $deaths = $isWinner ? rand(0, 4) : rand(3, 9);
                     $assists = $isWinner ? rand(4, 15) : rand(1, 8);
-                    
+
                     $gold = $isWinner ? rand(9000, 16000) : rand(6000, 11000);
                     if ($player->role === 'roam') {
                         $gold = $isWinner ? rand(6000, 9000) : rand(4000, 6500);
                     }
 
-                    // Enforce custom ratings based on player names to rank them exactly as requested
+                    // Enforce custom ratings based on player roles to rank them exactly as requested
                     $rating = 6.0;
-                    switch ($player->name) {
-                        // Project VII
-                        case 'pathan': // jungle top 1
-                            $rating = $isWinner ? rand(98, 115) / 10.0 : rand(80, 90) / 10.0;
-                            break;
-                        case 'gara': // gold top 1
-                            $rating = $isWinner ? rand(97, 115) / 10.0 : rand(80, 90) / 10.0;
-                            break;
-                        case 'nandi': // exp top 3
-                            $rating = $isWinner ? rand(83, 92) / 10.0 : rand(68, 78) / 10.0;
-                            break;
-                        case 'agung': // mid top 2
-                            $rating = $isWinner ? rand(88, 95) / 10.0 : rand(72, 82) / 10.0;
-                            break;
-                        case 'maul': // roam top 2
-                            $rating = $isWinner ? rand(87, 95) / 10.0 : rand(72, 82) / 10.0;
-                            break;
-
-                        // falkon knight
-                        case 'Rahmat dhani': // mid top 1
-                            $rating = $isWinner ? rand(96, 115) / 10.0 : rand(80, 90) / 10.0;
-                            break;
-                        case 'cky': // roam top 1
-                            $rating = $isWinner ? rand(95, 115) / 10.0 : rand(80, 90) / 10.0;
-                            break;
-                        case 'rendy': // gold top 3
-                            $rating = $isWinner ? rand(85, 93) / 10.0 : rand(68, 78) / 10.0;
-                            break;
-                        case 'ezy': // exp top 2
-                            $rating = $isWinner ? rand(90, 100) / 10.0 : rand(74, 85) / 10.0;
-                            break;
-                        case 'fajar': // jungle top 2
-                            $rating = $isWinner ? rand(89, 100) / 10.0 : rand(74, 85) / 10.0;
-                            break;
-
-                        default:
-                            $rating = $isWinner ? rand(60, 80) / 10.0 : rand(35, 60) / 10.0;
-                            break;
+                    if ($player->team->name === 'Project VII') {
+                        switch ($player->role) {
+                            case 'jungle':
+                                $rating = $isWinner ? rand(98, 115) / 10.0 : rand(80, 90) / 10.0;
+                                break;
+                            case 'gold_lane':
+                                $rating = $isWinner ? rand(97, 115) / 10.0 : rand(80, 90) / 10.0;
+                                break;
+                            case 'exp_lane':
+                                $rating = $isWinner ? rand(83, 92) / 10.0 : rand(68, 78) / 10.0;
+                                break;
+                            case 'mid_lane':
+                                $rating = $isWinner ? rand(88, 95) / 10.0 : rand(72, 82) / 10.0;
+                                break;
+                            case 'roam':
+                                $rating = $isWinner ? rand(87, 95) / 10.0 : rand(72, 82) / 10.0;
+                                break;
+                        }
+                    } elseif ($player->team->name === 'Falkon Knight') {
+                        switch ($player->role) {
+                            case 'mid_lane':
+                                $rating = $isWinner ? rand(96, 115) / 10.0 : rand(80, 90) / 10.0;
+                                break;
+                            case 'roam':
+                                $rating = $isWinner ? rand(95, 115) / 10.0 : rand(80, 90) / 10.0;
+                                break;
+                            case 'gold_lane':
+                                $rating = $isWinner ? rand(85, 93) / 10.0 : rand(68, 78) / 10.0;
+                                break;
+                            case 'exp_lane':
+                                $rating = $isWinner ? rand(90, 100) / 10.0 : rand(74, 85) / 10.0;
+                                break;
+                            case 'jungle':
+                                $rating = $isWinner ? rand(89, 100) / 10.0 : rand(74, 85) / 10.0;
+                                break;
+                        }
+                    } else {
+                        $rating = $isWinner ? rand(60, 80) / 10.0 : rand(35, 60) / 10.0;
                     }
 
                     if ($deaths === 0) $rating += 0.5;
