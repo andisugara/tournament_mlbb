@@ -1,12 +1,22 @@
-# === Stage 1: Build Frontend Assets ===
+# === Stage 1: PHP Composer Builder ===
+FROM composer:latest AS composer-builder
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
+COPY . .
+RUN composer dump-autoload --optimize --ignore-platform-reqs
+
+# === Stage 2: Build Frontend Assets ===
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# Copy vendor directory from composer-builder so Ziggy is available to Vite/Rollup
+COPY --from=composer-builder /app/vendor ./vendor
 RUN npm run build
 
-# === Stage 2: PHP Application Runtime ===
+# === Stage 3: PHP Application Runtime ===
 FROM php:8.2-fpm
 
 # Install system dependencies
@@ -30,20 +40,14 @@ RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install gd
 
-# Copy Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 # Set working directory
 WORKDIR /var/www
 
-# Copy application files
-COPY . .
+# Copy application files (with vendor directory) from composer-builder
+COPY --from=composer-builder /app ./
 
-# Copy compiled frontend assets from Stage 1
+# Copy compiled frontend assets from Stage 2
 COPY --from=frontend-builder /app/public/build ./public/build
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions for Laravel storage and bootstrap cache
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
