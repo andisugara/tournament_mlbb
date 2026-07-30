@@ -4,13 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Team;
 use App\Models\Player;
+use App\Models\User;
 use App\Models\CompetitionSetup;
 use App\Models\Stage;
 use App\Models\MlMatch;
-use App\Models\Game;
-use App\Models\PlayerGameStat;
-use App\Models\User;
-use App\Services\MatchPropagationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -141,14 +138,13 @@ class TournamentSeeder extends Seeder
             'format' => 'ROUND_ROBIN',
         ]);
 
-        // Create empty Playoff Stage as placeholder
         $playoffStage = Stage::create([
             'competition_id' => $competition->id,
             'type' => 'PLAYOFFS',
             'format' => 'DOUBLE_ELIMINATION',
         ]);
 
-        // 6. Generate Round Robin Matches (72 matches for 9 teams, double round robin)
+        // 6. Generate Round Robin Matches
         $matchPairs = [];
         for ($i = 0; $i < count($teams); $i++) {
             for ($j = $i + 1; $j < count($teams); $j++) {
@@ -157,180 +153,68 @@ class TournamentSeeder extends Seeder
             }
         }
 
-        // Shuffle pairs to make round scheduling look natural
+        // Shuffle pairs to distribute matches naturally
         shuffle($matchPairs);
 
-        $matches = [];
-        $scheduledTime = now()->subDays(15);
-
-        foreach ($matchPairs as $idx => $pair) {
-            $matches[] = MlMatch::create([
-                'stage_id' => $regularStage->id,
-                'team_a_id' => $pair[0]->id,
-                'team_b_id' => $pair[1]->id,
-                'best_of' => $competition->regular_season_best_of,
-                'round_name' => 'Week ' . (int) floor($idx / 8 + 1),
-                'scheduled_at' => $scheduledTime->copy()->addHours($idx * 3),
-            ]);
-        }
-
-        // 7. Simulate results for all matches to complete the group stage
-        $propagationService = new MatchPropagationService();
-        $heroes = [
-            'gold_lane' => ['Beatrix', 'Bruno', 'Harith', 'Claude', 'Karrie', 'Roger', 'Natan'],
-            'exp_lane' => ['Yu Zhong', 'Terizla', 'Arlott', 'Cici', 'Benedetta', 'Paquito', 'Ruby'],
-            'mid_lane' => ['Sanz', 'Novaria', 'Lylia', 'Valentina', 'Faramis', 'Yve', 'Pharsa'],
-            'jungle' => ['Fanny', 'Ling', 'Lancelot', 'Baxia', 'Fredrinn', 'Barats', 'Nolan'],
-            'roam' => ['Chou', 'Khufra', 'Tigreal', 'Minotaur', 'Kaja', 'Mathilda', 'Edith'],
+        $dates = [
+            '2026-08-07', // Friday
+            '2026-08-10', // Monday
+            '2026-08-11', // Tuesday
+            '2026-08-12', // Wednesday
+            '2026-08-13', // Thursday
+            '2026-08-14', // Friday
         ];
 
-        for ($mIdx = 0; $mIdx < count($matches); $mIdx++) {
-            $match = $matches[$mIdx];
-            $teamA = $match->teamA;
-            $teamB = $match->teamB;
-
-            $teamAId = $match->team_a_id;
-            $teamBId = $match->team_b_id;
-
-            // Enforce Project VII is champion of the group stage by winning all matches
-            if ($teamA->name === 'Project VII') {
-                $matchWinner = 1;
-            } elseif ($teamB->name === 'Project VII') {
-                $matchWinner = 2;
-            } elseif ($teamA->name === 'FKON') {
-                $matchWinner = 1; // FKON wins against others
-            } elseif ($teamB->name === 'FKON') {
-                $matchWinner = 2; // FKON wins against others
-            } else {
-                $matchWinner = rand(1, 2);
+        // Track matches per team per date
+        $teamMatchCountPerDate = [];
+        foreach ($teams as $t) {
+            foreach ($dates as $d) {
+                $teamMatchCountPerDate[$t->id][$d] = 0;
             }
+        }
 
-            $gamesWonA = 0;
-            $gamesWonB = 0;
+        // Track total matches per date
+        $dateMatchCount = array_fill_keys($dates, 0);
 
-            for ($gameNum = 1; $gameNum <= 3; $gameNum++) {
-                $gameWinnerId = null;
-                if ($matchWinner == 1) {
-                    if ($gamesWonA < 2 && ($gamesWonB == 1 || rand(1, 10) > 3)) {
-                        $gameWinnerId = $teamAId;
-                        $gamesWonA++;
-                    } else {
-                        $gameWinnerId = $teamBId;
-                        $gamesWonB++;
-                    }
-                } else {
-                    if ($gamesWonB < 2 && ($gamesWonA == 1 || rand(1, 10) > 3)) {
-                        $gameWinnerId = $teamBId;
-                        $gamesWonB++;
-                    } else {
-                        $gameWinnerId = $teamAId;
-                        $gamesWonA++;
-                    }
-                }
+        foreach ($matchPairs as $idx => $pair) {
+            $teamA = $pair[0];
+            $teamB = $pair[1];
 
-                $game = Game::create([
-                    'match_id' => $match->id,
-                    'game_number' => $gameNum,
-                    'winner_team_id' => $gameWinnerId,
-                    'duration_seconds' => rand(720, 1500),
-                ]);
+            $selectedDate = null;
 
-                $allPlayers = Player::whereIn('team_id', [$teamAId, $teamBId])->get();
-                $stats = [];
-                $mvpPlayerId = null;
-                $maxRating = 0.0;
-
-                foreach ($allPlayers as $player) {
-                    $isWinner = $player->team_id === $gameWinnerId;
-
-                    $kills = $isWinner ? rand(3, 8) : rand(0, 4);
-                    $deaths = $isWinner ? rand(0, 4) : rand(3, 9);
-                    $assists = $isWinner ? rand(4, 15) : rand(1, 8);
-
-                    $gold = $isWinner ? rand(9000, 16000) : rand(6000, 11000);
-                    if ($player->role === 'roam') {
-                        $gold = $isWinner ? rand(6000, 9000) : rand(4000, 6500);
-                    }
-
-                    // Enforce custom ratings based on player roles to rank them exactly as requested
-                    $rating = 6.0;
-                    if ($player->team->name === 'Project VII') {
-                        switch ($player->role) {
-                            case 'jungle':
-                                $rating = $isWinner ? rand(98, 115) / 10.0 : rand(80, 90) / 10.0;
-                                break;
-                            case 'gold_lane':
-                                $rating = $isWinner ? rand(97, 115) / 10.0 : rand(80, 90) / 10.0;
-                                break;
-                            case 'exp_lane':
-                                $rating = $isWinner ? rand(83, 92) / 10.0 : rand(68, 78) / 10.0;
-                                break;
-                            case 'mid_lane':
-                                $rating = $isWinner ? rand(88, 95) / 10.0 : rand(72, 82) / 10.0;
-                                break;
-                            case 'roam':
-                                $rating = $isWinner ? rand(87, 95) / 10.0 : rand(72, 82) / 10.0;
-                                break;
-                        }
-                    } elseif ($player->team->name === 'FKON') {
-                        switch ($player->role) {
-                            case 'mid_lane':
-                                $rating = $isWinner ? rand(96, 115) / 10.0 : rand(80, 90) / 10.0;
-                                break;
-                            case 'roam':
-                                $rating = $isWinner ? rand(95, 115) / 10.0 : rand(80, 90) / 10.0;
-                                break;
-                            case 'gold_lane':
-                                $rating = $isWinner ? rand(85, 93) / 10.0 : rand(68, 78) / 10.0;
-                                break;
-                            case 'exp_lane':
-                                $rating = $isWinner ? rand(90, 100) / 10.0 : rand(74, 85) / 10.0;
-                                break;
-                            case 'jungle':
-                                $rating = $isWinner ? rand(89, 100) / 10.0 : rand(74, 85) / 10.0;
-                                break;
-                        }
-                    } else {
-                        $rating = $isWinner ? rand(60, 80) / 10.0 : rand(35, 60) / 10.0;
-                    }
-
-                    if ($deaths === 0) $rating += 0.5;
-
-                    if ($rating > $maxRating) {
-                        $maxRating = $rating;
-                        $mvpPlayerId = $player->id;
-                    }
-
-                    $rolePool = $heroes[$player->role];
-                    $hero = $rolePool[array_rand($rolePool)];
-
-                    $stats[$player->id] = [
-                        'game_id' => $game->id,
-                        'player_id' => $player->id,
-                        'hero' => $hero,
-                        'kills' => $kills,
-                        'deaths' => $deaths,
-                        'assists' => $assists,
-                        'gold_earned' => $gold,
-                        'rating' => $rating,
-                        'is_mvp' => false,
-                    ];
-                }
-
-                if (isset($stats[$mvpPlayerId])) {
-                    $stats[$mvpPlayerId]['is_mvp'] = true;
-                }
-
-                foreach ($stats as $playerStat) {
-                    PlayerGameStat::create($playerStat);
-                }
-
-                if ($gamesWonA == 2 || $gamesWonB == 2) {
+            // Try to schedule in Mon-Wed (Aug 10-12) if neither team has a match on that day
+            // and the day has less than 4 matches (8 teams play, 1 rests)
+            foreach (['2026-08-10', '2026-08-11', '2026-08-12'] as $d) {
+                if ($dateMatchCount[$d] < 4 && $teamMatchCountPerDate[$teamA->id][$d] === 0 && $teamMatchCountPerDate[$teamB->id][$d] === 0) {
+                    $selectedDate = $d;
                     break;
                 }
             }
 
-            $propagationService->propagate($match);
+            // Otherwise, schedule on Thursday/Friday (Aug 7, 13, 14)
+            // Select the date with the fewest matches scheduled so far
+            if (!$selectedDate) {
+                $thuFriDates = ['2026-08-07', '2026-08-13', '2026-08-14'];
+                usort($thuFriDates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
+                $selectedDate = $thuFriDates[0];
+            }
+
+            // Update trackers
+            $teamMatchCountPerDate[$teamA->id][$selectedDate]++;
+            $teamMatchCountPerDate[$teamB->id][$selectedDate]++;
+            $dateMatchCount[$selectedDate]++;
+
+            // Determine round name based on date
+            $roundName = 'Regular Season - ' . date('d M Y', strtotime($selectedDate));
+
+            MlMatch::create([
+                'stage_id' => $regularStage->id,
+                'team_a_id' => $teamA->id,
+                'team_b_id' => $teamB->id,
+                'best_of' => $competition->regular_season_best_of,
+                'round_name' => $roundName,
+                'scheduled_at' => $selectedDate . ' 19:30:00',
+            ]);
         }
     }
 }
