@@ -184,11 +184,11 @@ const changeStatsStage = (type) => {
 
 const getRoleBadgeColor = (role) => {
     const colors = {
-        gold_lane: 'bg-yellow-950 text-yellow-700 border-yellow-700/50',
-        exp_lane: 'bg-green-950 text-green-400 border-green-700/50',
-        mid_lane: 'bg-purple-950 text-purple-400 border-purple-700/50',
-        jungle: 'bg-red-950 text-red-400 border-red-700/50',
-        roam: 'bg-blue-950 text-blue-400 border-blue-700/50'
+        gold_lane: 'bg-amber-100 text-amber-800 border-amber-300',
+        exp_lane: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        mid_lane: 'bg-purple-100 text-purple-800 border-purple-300',
+        jungle: 'bg-rose-100 text-rose-800 border-rose-300',
+        roam: 'bg-sky-100 text-sky-800 border-sky-300'
     };
     return colors[role] || 'bg-slate-100 text-slate-600 border-slate-200';
 };
@@ -212,6 +212,17 @@ const getScore = (match, teamId) => {
 const mvpAward = computed(() => {
     return props.awards.find(a => a.award_type === 'overall_mvp');
 });
+
+const isMobileMenuOpen = ref(false);
+
+const tabsList = [
+    { id: 'schedule', name: 'Jadwal & Hasil', icon: '📅' },
+    { id: 'standings', name: 'Klasemen Liga', icon: '📈' },
+    { id: 'bracket', name: 'Playoff Bracket', icon: '🌳' },
+    { id: 'leaderboard', name: 'Leaderboard Lane', icon: '👑' },
+    { id: 'stats', name: 'Statistik Player', icon: '📊' },
+    { id: 'rules', name: 'Aturan Turnamen', icon: '📋' },
+];
 </script>
 
 <template>
@@ -219,61 +230,63 @@ const mvpAward = computed(() => {
     <div class="min-h-screen bg-[#f8fafc] text-slate-800 font-sans selection:bg-yellow-400 selection:text-slate-950">
         
         <!-- Header -->
+        <!-- Header -->
         <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-4 md:px-8">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between w-full">
                 <div class="flex items-center gap-3">
                     <!-- Custom SVG Crown/Cup Logo -->
-                   <img src="/logo.png" alt="logo" class="w-10 h-10">
+                    <img src="/logo.png" alt="logo" class="w-10 h-10">
                     <div>
-                        <h1 class="text-xl font-extrabold tracking-wider bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                        <h1 class="text-lg md:text-xl font-extrabold tracking-wider bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent uppercase">
                             {{ competition ? competition.name : 'MLBB AGUSTUSAN TOURNAMENT' }}
                         </h1>
-                        
                     </div>
                 </div>
 
-                <!-- Navigation Tabs -->
-                <nav class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                <!-- Desktop Navigation Tabs -->
+                <nav class="hidden md:flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
                     <button 
-                        @click="activeTab = 'schedule'" 
-                        :class="[activeTab === 'schedule' ? 'bg-yellow-500 text-black shadow-md shadow-none' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
+                        v-for="tab in tabsList" 
+                        :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="[activeTab === tab.id ? 'bg-yellow-500 text-black shadow-md' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
                         class="px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
                     >
-                        Jadwal & Hasil
-                    </button>
-                    <button 
-                        @click="activeTab = 'standings'" 
-                        :class="[activeTab === 'standings' ? 'bg-yellow-500 text-black shadow-md shadow-none' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
-                    >
-                        Klasemen
-                    </button>
-                    <button 
-                        @click="activeTab = 'bracket'" 
-                        :class="[activeTab === 'bracket' ? 'bg-yellow-500 text-black shadow-md shadow-none' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
-                    >
-                        Playoff Bracket
-                    </button>
-                    <button 
-                        @click="activeTab = 'leaderboard'" 
-                        :class="[activeTab === 'leaderboard' ? 'bg-yellow-500 text-black shadow-md shadow-none' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
-                    >
-                        Leaderboard Lane
-                    </button>
-                    <button 
-                        @click="activeTab = 'stats'" 
-                        :class="[activeTab === 'stats' ? 'bg-yellow-500 text-black shadow-md shadow-none' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50']"
-                        class="px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-200"
-                    >
-                        Statistik Player
+                        {{ tab.name }}
                     </button>
                 </nav>
 
-              
+                <!-- Mobile Navigation Toggle -->
+                <button 
+                    @click="isMobileMenuOpen = !isMobileMenuOpen" 
+                    class="md:hidden flex items-center justify-center bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl p-2 transition text-slate-800"
+                >
+                    <svg v-if="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
         </header>
+
+        <!-- Mobile Menu Overlay -->
+        <div v-if="isMobileMenuOpen" class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm md:hidden" @click="isMobileMenuOpen = false">
+            <div class="absolute top-20 right-4 left-4 bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl space-y-2 animate-fadeIn" @click.stop>
+                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold mb-2 px-3">Navigasi Halaman</div>
+                <button 
+                    v-for="tab in tabsList" 
+                    :key="tab.id"
+                    @click="activeTab = tab.id; isMobileMenuOpen = false;"
+                    :class="activeTab === tab.id ? 'bg-yellow-500 text-slate-950 font-black shadow-sm' : 'text-slate-700 hover:bg-slate-50'"
+                    class="w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition"
+                >
+                    <span class="text-lg">{{ tab.icon }}</span>
+                    <span class="text-sm">{{ tab.name }}</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Official Awards Lock Banner -->
         <div v-if="awards.length > 0" class="bg-gradient-to-r from-[#1e1503] via-[#382b0f] to-[#1e1503] border-b border-yellow-700/30 text-yellow-600 py-3 px-4">
@@ -328,8 +341,8 @@ const mvpAward = computed(() => {
                             <!-- Match Teams & Score Grid -->
                             <div class="px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
                                 <!-- Team A -->
-                                <div class="flex-1 flex items-center justify-end gap-4 w-full md:w-auto">
-                                    <div class="text-right">
+                                <div class="flex-1 flex items-center justify-center md:justify-end gap-4 w-full md:w-auto">
+                                    <div class="text-center md:text-right">
                                         <h4 :class="getWinnerClass(match, 'A')" class="text-lg font-black tracking-wide uppercase">{{ match.team_a ? match.team_a.name : 'WAITING' }}</h4>
                                         <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
                                     </div>
@@ -360,12 +373,12 @@ const mvpAward = computed(() => {
                                 </div>
 
                                 <!-- Team B -->
-                                <div class="flex-1 flex items-center justify-start gap-4 w-full md:w-auto">
+                                <div class="flex-1 flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
                                     <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
                                         <img v-if="match.team_b && match.team_b.logo" :src="match.team_b.logo" class="max-h-full max-w-full object-contain" />
                                         <span v-else class="text-slate-600 text-xl">🛡️</span>
                                     </div>
-                                    <div>
+                                    <div class="text-center md:text-left">
                                         <h4 :class="getWinnerClass(match, 'B')" class="text-lg font-black tracking-wide uppercase">{{ match.team_b ? match.team_b.name : 'WAITING' }}</h4>
                                         <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
                                     </div>
@@ -889,17 +902,17 @@ const mvpAward = computed(() => {
                         </div>
 
                         <!-- Stage Toggle Filter -->
-                        <div class="flex bg-slate-900 border border-slate-200 p-1 rounded-xl">
+                        <div class="flex bg-slate-100 border border-slate-200 p-1 rounded-xl">
                             <button 
                                 @click="changeStatsStage('REGULAR_SEASON')"
-                                :class="activeStageType === 'REGULAR_SEASON' ? 'bg-yellow-500 text-black font-extrabold' : 'text-slate-600 hover:text-slate-800'"
+                                :class="activeStageType === 'REGULAR_SEASON' ? 'bg-yellow-500 text-slate-950 font-black shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'"
                                 class="px-4 py-1.5 text-xs rounded-lg transition"
                             >
                                 LIGA REGULER
                             </button>
                             <button 
                                 @click="changeStatsStage('PLAYOFFS')"
-                                :class="activeStageType === 'PLAYOFFS' ? 'bg-yellow-500 text-black font-extrabold' : 'text-slate-600 hover:text-slate-800'"
+                                :class="activeStageType === 'PLAYOFFS' ? 'bg-yellow-500 text-slate-950 font-black shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'"
                                 class="px-4 py-1.5 text-xs rounded-lg transition"
                             >
                                 PLAYOFFS
@@ -970,6 +983,116 @@ const mvpAward = computed(() => {
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Rules of the Games -->
+                <div v-if="activeTab === 'rules'" class="space-y-8 animate-fadeIn">
+                    <div class="border-b border-slate-200 pb-4">
+                        <h2 class="text-2xl font-black tracking-wide">📋 ATURAN TURNAMEN</h2>
+                        <p class="text-sm text-slate-600 mt-1">Panduan lengkap format kompetisi, peraturan umum, dan pelaporan hasil tanding</p>
+                    </div>
+
+                    <!-- Welcome Banner -->
+                    <div class="bg-gradient-to-r from-yellow-500/10 via-amber-500/5 to-yellow-500/10 border border-yellow-500/30 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="space-y-2">
+                            <h3 class="text-xl font-black text-yellow-700 uppercase">🇮🇩 HUT RI ke-81 Kabayan Group</h3>
+                            <p class="text-sm text-slate-700 font-medium">Halo Sobat Kabayan! 👋 Berikut adalah aturan turnamen Mobile Legends HUT RI ke-81 Kabayan Group.</p>
+                        </div>
+                        <div class="text-4xl">🏆</div>
+                    </div>
+
+                    <!-- Grid Layout for Tournament Format -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-black uppercase tracking-wider text-slate-700 border-l-4 border-yellow-500 pl-3">📌 Format Turnamen</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Card 1: Regular Season -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl bg-amber-50 p-2 rounded-xl text-amber-600">🎮</span>
+                                    <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">1. Regular Season (Online)</h4>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-2.5 font-medium list-disc list-inside">
+                                    <li>Seluruh pertandingan dilaksanakan secara <strong>online</strong>.</li>
+                                    <li>Menggunakan sistem <strong>Half Round Robin</strong>.</li>
+                                    <li>Setiap tim akan bertemu <strong>1 kali</strong> dengan seluruh tim lainnya.</li>
+                                    <li>Setiap pertandingan menggunakan format <strong>Best of 3 (BO3)</strong>.</li>
+                                    <li>Peringkat klasemen menentukan posisi pada babak Playoff.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 2: Playoff -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl bg-amber-50 p-2 rounded-xl text-amber-600">🏆</span>
+                                    <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">2. Playoff (Offline)</h4>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-2.5 font-medium list-disc list-inside">
+                                    <li>Menggunakan sistem <strong>Double Elimination Bracket</strong>.</li>
+                                    <li>Seluruh pertandingan menggunakan format <strong>Best of 3 (BO3)</strong>.</li>
+                                    <li>Tim yang kalah di Upper Bracket masih memiliki kesempatan di Lower Bracket.</li>
+                                    <li>Tim yang kalah dua kali akan tereliminasi dari turnamen.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Card 3: Grand Final -->
+                            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl bg-amber-50 p-2 rounded-xl text-amber-600">👑</span>
+                                    <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">3. Grand Final (Offline)</h4>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-2.5 font-medium list-disc list-inside">
+                                    <li>Menggunakan format <strong>Best of 5 (BO5)</strong>.</li>
+                                    <li>Pemenang Upper Bracket akan bertemu pemenang Lower Bracket.</li>
+                                    <li>Tim yang memenangkan <strong>3 game</strong> terlebih dahulu dinyatakan sebagai Juara Turnamen.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Rules & Screenshot Reporting -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Card 4: General Rules -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                                <span class="text-2xl">📋</span>
+                                <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">Aturan Umum</h4>
+                            </div>
+                            <ul class="text-xs text-slate-600 space-y-2.5 font-medium list-inside list-none">
+                                <li class="flex items-start gap-2"><span>🛡️</span> <span>Mode pertandingan menggunakan <strong>Custom Tournament Draft Pick (5v5)</strong>.</span></li>
+                                <li class="flex items-start gap-2"><span>👥</span> <span>Setiap tim terdiri dari <strong>5 pemain</strong>.</span></li>
+                                <li class="flex items-start gap-2"><span>🔑</span> <span>Seluruh peserta wajib menggunakan akun milik sendiri.</span></li>
+                                <li class="flex items-start gap-2"><span>🔄</span> <span>Pergantian pemain hanya diperbolehkan sebelum pertandingan dimulai dan harus diinformasikan kepada panitia.</span></li>
+                                <li class="flex items-start gap-2"><span>⏰</span> <span>Seluruh peserta wajib hadir sesuai jadwal yang telah ditentukan.</span></li>
+                                <li class="flex items-start gap-2"><span>🚨</span> <span>Keterlambatan lebih dari <strong>10 menit</strong> tanpa konfirmasi akan dianggap <strong>Walk Over (WO)</strong>.</span></li>
+                                <li class="flex items-start gap-2"><span>🚫</span> <span>Dilarang menggunakan cheat, script, map hack, bug abuse, maupun aplikasi pihak ketiga.</span></li>
+                                <li class="flex items-start gap-2"><span>🤐</span> <span>Dilarang melakukan tindakan tidak sportif seperti toxic chat atau menghina lawan.</span></li>
+                                <li class="flex items-start gap-2"><span>⚖️</span> <span>Keputusan panitia bersifat <strong>mutlak dan tidak dapat diganggu gugat</strong>.</span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Card 5: Screenshot Reporting -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between gap-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                                    <span class="text-2xl">📸</span>
+                                    <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">Pelaporan Hasil Pertandingan</h4>
+                                </div>
+                                <ul class="text-xs text-slate-600 space-y-2.5 font-medium list-disc list-inside">
+                                    <li>Tim pemenang wajib mengirimkan <strong>Screenshot (SS) hasil pertandingan</strong> kepada panitia.</li>
+                                    <li>Screenshot wajib menampilkan hasil akhir <strong>(Victory)</strong>.</li>
+                                    <li>Hasil pertandingan baru dianggap sah setelah dicatat oleh panitia.</li>
+                                    <li>Apabila terjadi perselisihan hasil pertandingan, panitia berhak meminta bukti tambahan.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Motivational Slogan -->
+                            <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 border border-red-500/20 text-white p-5 rounded-xl text-center shadow-md">
+                                <span class="block text-xs font-black tracking-widest uppercase">SLOGAN KOMPETISI</span>
+                                <h4 class="text-lg font-black tracking-wider mt-1.5 uppercase">🔥 MENANG ITU BONUS, KOMPAK ITU UTAMA!</h4>
+                                <p class="text-[10px] text-red-50 mt-1 uppercase font-semibold">Selamat bertanding dan semoga menjadi Juara Mobile Legends HUT RI ke-81 Kabayan Group! 🇮🇩</p>
+                            </div>
                         </div>
                     </div>
                 </div>

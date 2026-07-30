@@ -128,7 +128,7 @@ class TournamentSeeder extends Seeder
             'playoff_upper_best_of' => 3,
             'playoff_lower_best_of' => 3,
             'playoff_gf_best_of' => 5,
-            'is_double_round_robin' => true,
+            'is_double_round_robin' => false,
         ]);
 
         // 5. Setup Stages (Regular Season and Playoffs)
@@ -144,12 +144,11 @@ class TournamentSeeder extends Seeder
             'format' => 'DOUBLE_ELIMINATION',
         ]);
 
-        // 6. Generate Round Robin Matches
+        // 6. Generate Round Robin Matches (Single Round Robin = 36 matches)
         $matchPairs = [];
         for ($i = 0; $i < count($teams); $i++) {
             for ($j = $i + 1; $j < count($teams); $j++) {
-                $matchPairs[] = [$teams[$i], $teams[$j]]; // Home
-                $matchPairs[] = [$teams[$j], $teams[$i]]; // Away
+                $matchPairs[] = [$teams[$i], $teams[$j]];
             }
         }
 
@@ -191,12 +190,29 @@ class TournamentSeeder extends Seeder
                 }
             }
 
-            // Otherwise, schedule on Thursday/Friday (Aug 7, 13, 14)
-            // Select the date with the fewest matches scheduled so far
+            // Otherwise, schedule on Thursday/Friday (Aug 7, 13, 14), max 8 matches per day and max 2 matches per team
             if (!$selectedDate) {
                 $thuFriDates = ['2026-08-07', '2026-08-13', '2026-08-14'];
+                // Sort Thu/Fri dates by current load to distribute evenly
                 usort($thuFriDates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
-                $selectedDate = $thuFriDates[0];
+
+                foreach ($thuFriDates as $d) {
+                    if ($dateMatchCount[$d] < 8 && $teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
+                        $selectedDate = $d;
+                        break;
+                    }
+                }
+            }
+
+            // Fallback just in case (e.g. if greedy choice hits a dead end)
+            if (!$selectedDate) {
+                usort($dates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
+                foreach ($dates as $d) {
+                    if ($teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
+                        $selectedDate = $d;
+                        break;
+                    }
+                }
             }
 
             // Update trackers

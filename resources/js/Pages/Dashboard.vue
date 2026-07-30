@@ -440,11 +440,10 @@ const adminTab = ref('matches');
                         </div>
                     </div>
 
-                    <!-- Admin Tabs Navigation -->
-                    <div class="flex items-center gap-2 border-b border-slate-200/80 pb-3">
-                        <button @click="adminTab = 'matches'" :class="adminTab === 'matches' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-white'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Jadwal & Input Score</button>
-                        <button @click="adminTab = 'standings'" :class="adminTab === 'standings' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-white'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Klasemen & Award</button>
-                        <button @click="adminTab = 'teams'" :class="adminTab === 'teams' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-white'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Manage Teams & Players</button>
+                    <div class="flex items-center gap-2 border-b border-slate-200/80 pb-3 overflow-x-auto max-w-full whitespace-nowrap no-scrollbar">
+                        <button @click="adminTab = 'matches'" :class="adminTab === 'matches' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Jadwal & Input Score</button>
+                        <button @click="adminTab = 'standings'" :class="adminTab === 'standings' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Klasemen & Award</button>
+                        <button @click="adminTab = 'teams'" :class="adminTab === 'teams' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Manage Teams & Players</button>
                     </div>
 
                     <!-- Tab content: Matches -->
