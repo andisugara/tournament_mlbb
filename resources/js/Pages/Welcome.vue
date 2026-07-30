@@ -33,7 +33,20 @@ const regularMatches = computed(() => {
 });
 
 const playoffMatches = computed(() => {
-    return props.matches.filter(m => m.stage.type === 'PLAYOFFS');
+    const matches = props.matches.filter(m => m.stage.type === 'PLAYOFFS');
+    if (matches.length > 0) {
+        return matches;
+    }
+    return [
+        { id: 'mock_ub_r1_m1', match_code: 'UB_R1_M1', bracket_type: 'UPPER', round_name: 'Upper Bracket Round 1', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_ub_r1_m2', match_code: 'UB_R1_M2', bracket_type: 'UPPER', round_name: 'Upper Bracket Round 1', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_ub_r2_m1', match_code: 'UB_R2_M1', bracket_type: 'UPPER', round_name: 'Upper Bracket Semifinals', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_ub_r2_m2', match_code: 'UB_R2_M2', bracket_type: 'UPPER', round_name: 'Upper Bracket Semifinals', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_lb_r1_m1', match_code: 'LB_R1_M1', bracket_type: 'LOWER', round_name: 'Lower Bracket Semifinals', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_ub_r3_m1', match_code: 'UB_R3_M1', bracket_type: 'UPPER', round_name: 'Upper Bracket Final', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_lb_r2_m1', match_code: 'LB_R2_M1', bracket_type: 'LOWER', round_name: 'Lower Bracket Final', best_of: 3, team_a: null, team_b: null, winner_team_id: null, games: [] },
+        { id: 'mock_gf_m1',    match_code: 'GF_M1',    bracket_type: 'GRAND_FINAL', round_name: 'Grand Final', best_of: 5, team_a: null, team_b: null, winner_team_id: null, games: [] },
+    ];
 });
 
 // Group playoff matches by round for bracket tree view
