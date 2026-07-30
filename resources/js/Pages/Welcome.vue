@@ -871,7 +871,7 @@ const tabsList = [
                                             <img v-if="players[0].team_logo" :src="players[0].team_logo" class="max-h-full max-w-full object-contain" />
                                             <span v-else>🛡️</span>
                                         </div>
-                                        <h4 class="text-sm font-black text-slate-800 truncate uppercase">{{ players[0].name.split(' ').pop() }}</h4>
+                                        <h4 class="text-sm font-black text-slate-800 truncate uppercase">{{ players[0].name.split('-')[0].trim() }}</h4>
                                         <p class="text-[9px] text-slate-600 font-bold uppercase truncate">{{ players[0].team_name }}</p>
                                         <div class="text-yellow-700 font-black text-sm mt-1.5">★ {{ players[0].avg_rating }}</div>
                                     </div>
@@ -881,7 +881,7 @@ const tabsList = [
                                         <div v-for="(p, idx) in players.slice(1, 3)" :key="p.player_id" class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200/60">
                                             <div class="flex items-center gap-1.5 truncate">
                                                 <span class="text-slate-400 font-bold">#{{ idx + 2 }}</span>
-                                                <span class="font-bold text-slate-700 truncate uppercase">{{ p.name.split(' ').pop() }}</span>
+                                                <span class="font-bold text-slate-700 truncate uppercase">{{ p.name.split('-')[0].trim() }}</span>
                                             </div>
                                             <span class="font-bold text-yellow-700">{{ p.avg_rating }}</span>
                                         </div>
