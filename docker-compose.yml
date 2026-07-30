@@ -21,7 +21,7 @@ services:
     container_name: tournamentml-nginx
     restart: unless-stopped
     ports:
-      - 8005:80
+      - 8022:80
     volumes:
       - ./:/var/www
       - ./docker/nginx:/etc/nginx/conf.d/

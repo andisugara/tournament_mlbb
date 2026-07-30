@@ -35,9 +35,9 @@ class TournamentSeeder extends Seeder
             ['name' => 'Tim Teknis', 'logo' => null],
             ['name' => 'Octagram', 'logo' => null],
             ['name' => 'Wo makan siang mana wo', 'logo' => null],
-            ['name' => 'Falkon Knight', 'logo' => null],
             ['name' => 'CROPINGIYAH', 'logo' => null],
-            ['name' => 'Unknown Team', 'logo' => null],
+            ['name' => 'FKON', 'logo' => null],
+            ['name' => 'Solo Mix', 'logo' => null],
         ];
 
         $teamsPlayers = [
@@ -83,13 +83,6 @@ class TournamentSeeder extends Seeder
                 'jungle' => 'Souso - 36102807 (2057)',
                 'roam' => 'Hell Kerbecs - 283263201 (15373)',
             ],
-            'Falkon Knight' => [
-                'gold_lane' => 'Falkon Gold - 44444 (4444)',
-                'exp_lane' => 'Falkon Exp - 55555 (5555)',
-                'mid_lane' => 'Falkon Mid - 22222 (2222)',
-                'jungle' => 'Falkon Jungle - 11111 (1111)',
-                'roam' => 'Falkon Roam - 33333 (3333)',
-            ],
             'CROPINGIYAH' => [
                 'gold_lane' => 'KyWazowSky. ✙ - 248549911 (9296)',
                 'exp_lane' => 'tim pa rizky - 434975478 (2276)',
@@ -97,12 +90,19 @@ class TournamentSeeder extends Seeder
                 'jungle' => 'Oveer. - 169432777 (2883)',
                 'roam' => 'XPANDER™ - 719940772 (8868)',
             ],
-            'Unknown Team' => [
-                'gold_lane' => 'Unknown Gold - 15151 (1515)',
-                'exp_lane' => 'Unknown Exp - 16161 (1616)',
-                'mid_lane' => 'Unknown Mid - 13131 (1313)',
-                'jungle' => 'Unknown Jungle - 12121 (1212)',
-                'roam' => 'Unknown Roam - 14141 (1414)',
+            'FKON' => [
+                'gold_lane' => 'leiffTM  - 79595090 (2153)',
+                'exp_lane' => 'Fachrezy25 - 32016301 (2044)',
+                'mid_lane' => 'rahmatdhani - 73037492 (2041)',
+                'jungle' => 'Orpheus - 115880707 (2594)',
+                'roam' => 'Mr. Cky - 151571597 (2773)',
+            ],
+            'Solo Mix' => [
+                'gold_lane' => '—n piiña - 1147457318 (13638)',
+                'exp_lane' => 'Booriq - 693816276 (8769)',
+                'mid_lane' => 'VendettaXDannn - 1881717888 (2966)',
+                'jungle' => 'khar17zm? - 181284646 (2943)',
+                'roam' => "it'sme_caca - 1189861932 (13843)",
             ],
         ];
 
@@ -197,10 +197,10 @@ class TournamentSeeder extends Seeder
                 $matchWinner = 1;
             } elseif ($teamB->name === 'Project VII') {
                 $matchWinner = 2;
-            } elseif ($teamA->name === 'Falkon Knight') {
-                $matchWinner = 1; // Falkon Knight wins against others
-            } elseif ($teamB->name === 'Falkon Knight') {
-                $matchWinner = 2; // Falkon Knight wins against others
+            } elseif ($teamA->name === 'FKON') {
+                $matchWinner = 1; // FKON wins against others
+            } elseif ($teamB->name === 'FKON') {
+                $matchWinner = 2; // FKON wins against others
             } else {
                 $matchWinner = rand(1, 2);
             }
@@ -272,7 +272,7 @@ class TournamentSeeder extends Seeder
                                 $rating = $isWinner ? rand(87, 95) / 10.0 : rand(72, 82) / 10.0;
                                 break;
                         }
-                    } elseif ($player->team->name === 'Falkon Knight') {
+                    } elseif ($player->team->name === 'FKON') {
                         switch ($player->role) {
                             case 'mid_lane':
                                 $rating = $isWinner ? rand(96, 115) / 10.0 : rand(80, 90) / 10.0;
