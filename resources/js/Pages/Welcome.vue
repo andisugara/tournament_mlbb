@@ -239,6 +239,7 @@ const tabsList = [
 
 // Date Tabs Scheduling States
 const activeDateTab = ref('');
+const activeTimeTab = ref('19:30');
 
 const groupedMatches = computed(() => {
     const groups = {};
@@ -406,340 +407,159 @@ const currentGroup = computed(() => {
                         </button>
                     </div>
 
-                    <!-- Subgrouped Match List -->
-                    <div v-if="currentGroup" class="space-y-8">
-                        
-                        <!-- 19:30 Slot -->
-                        <div v-if="currentGroup.slots['19:30'].length > 0" class="space-y-4">
-                            <div class="flex items-center gap-2 border-l-4 border-yellow-500 pl-3">
-                                <span class="bg-yellow-100 text-yellow-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Match 1 (19:30 WIB)</span>
-                            </div>
-                            <div class="grid grid-cols-1 gap-6">
-                                <div v-for="match in currentGroup.slots['19:30']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-slate-200 transition">
-                                    <div class="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200/50">
-                                        <div class="flex items-center gap-2">
-                                            <span class="bg-amber-100 text-amber-600 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                                {{ match.round_name }}
-                                            </span>
-                                            <span v-if="match.bracket_type" class="bg-yellow-100 text-yellow-700 border border-yellow-800/40/30 text-xs font-bold px-3 py-1 rounded-full">
-                                                {{ match.bracket_type }} BRACKET
-                                            </span>
-                                            <span class="text-slate-400 text-xs font-semibold">BO{{ match.best_of }}</span>
+                    <!-- Time Selection Sub-tabs -->
+                    <div class="flex items-center gap-2 mb-6">
+                        <button 
+                            @click="activeTimeTab = '19:30'" 
+                            :class="activeTimeTab === '19:30' ? 'bg-yellow-500 text-slate-900 shadow-md font-black' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold'" 
+                            class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition"
+                        >
+                            Match 19:30
+                        </button>
+                        <button 
+                            @click="activeTimeTab = '20:30'" 
+                            :class="activeTimeTab === '20:30' ? 'bg-yellow-500 text-slate-900 shadow-md font-black' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold'" 
+                            class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition"
+                        >
+                            Match 20:30
+                        </button>
+                    </div>
+
+                    <!-- Match List Wrapper -->
+                    <div v-if="currentGroup" class="space-y-8 animate-fadeIn">
+                        <div v-if="currentGroup.slots[activeTimeTab] && currentGroup.slots[activeTimeTab].length > 0" class="grid grid-cols-1 gap-6">
+                            <div v-for="match in currentGroup.slots[activeTimeTab]" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-slate-200 transition">
+                                
+                                <!-- Match Header info -->
+                                <div class="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200/50">
+                                    <div class="flex items-center gap-2">
+                                        <span class="bg-amber-100 text-amber-600 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                            {{ match.round_name }}
+                                        </span>
+                                        <span v-if="match.bracket_type" class="bg-yellow-100 text-yellow-700 border border-yellow-800/40/30 text-xs font-bold px-3 py-1 rounded-full">
+                                            {{ match.bracket_type }} BRACKET
+                                        </span>
+                                        <span class="text-slate-400 text-xs font-semibold">BO{{ match.best_of }}</span>
+                                    </div>
+                                    <div class="text-slate-600 text-xs font-bold">
+                                        {{ match.scheduled_at ? new Date(match.scheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Belum Terjadwal' }}
+                                    </div>
+                                </div>
+
+                                <!-- Match Teams & Score Grid -->
+                                <div class="px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
+                                    <!-- Team A -->
+                                    <div class="flex-1 flex items-center justify-center md:justify-end gap-4 w-full md:w-auto">
+                                        <div class="text-center md:text-right">
+                                            <h4 :class="getWinnerClass(match, 'A')" class="text-lg font-black tracking-wide uppercase">{{ match.team_a ? match.team_a.name : 'WAITING' }}</h4>
+                                            <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
                                         </div>
-                                        <div class="text-slate-600 text-xs font-bold">
-                                            {{ match.scheduled_at ? new Date(match.scheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Belum Terjadwal' }}
+                                        <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
+                                            <img v-if="match.team_a && match.team_a.logo" :src="match.team_a.logo" class="max-h-full max-w-full object-contain" />
+                                            <span v-else class="text-slate-600 text-xl">🛡️</span>
                                         </div>
                                     </div>
-                                    <div class="px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                                        <div class="flex-1 flex items-center justify-center md:justify-end gap-4 w-full md:w-auto">
-                                            <div class="text-center md:text-right">
-                                                <h4 :class="getWinnerClass(match, 'A')" class="text-lg font-black tracking-wide uppercase">{{ match.team_a ? match.team_a.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_a && match.team_a.logo" :src="match.team_a.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
+
+                                    <!-- Center Score & BO -->
+                                    <div class="flex flex-col items-center">
+                                        <div class="bg-slate-50 px-6 py-2 rounded-2xl border border-slate-200/80 flex items-center gap-6 shadow-inner">
+                                            <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_a_id}" class="text-3xl font-extrabold text-slate-700">
+                                                {{ match.team_a_id ? getScore(match, match.team_a_id) : '-' }}
+                                            </span>
+                                            <span class="text-slate-600 text-sm font-black uppercase tracking-widest">VS</span>
+                                            <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_b_id}" class="text-3xl font-extrabold text-slate-700">
+                                                {{ match.team_b_id ? getScore(match, match.team_b_id) : '-' }}
+                                            </span>
                                         </div>
-                                        <div class="flex flex-col items-center">
-                                            <div class="bg-slate-50 px-6 py-2 rounded-2xl border border-slate-200/80 flex items-center gap-6 shadow-inner">
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_a_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_a_id ? getScore(match, match.team_a_id) : '-' }}
-                                                </span>
-                                                <span class="text-slate-600 text-sm font-black uppercase tracking-widest">VS</span>
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_b_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_b_id ? getScore(match, match.team_b_id) : '-' }}
-                                                </span>
-                                            </div>
-                                            <button @click="toggleMatch(match.id)" v-if="match.games.length > 0" class="mt-3 text-xs font-bold text-yellow-700 hover:text-yellow-600 transition">
-                                                {{ expandedMatches[match.id] ? 'SEMBUNYIKAN DETAIL MAP' : 'LIHAT DETAIL MAP' }}
-                                            </button>
-                                        </div>
-                                        <div class="flex-1 flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_b && match.team_b.logo" :src="match.team_b.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
-                                            <div class="text-center md:text-left">
-                                                <h4 :class="getWinnerClass(match, 'B')" class="text-lg font-black tracking-wide uppercase">{{ match.team_b ? match.team_b.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                        </div>
+                                        <button 
+                                            @click="toggleMatch(match.id)" 
+                                            v-if="match.games.length > 0"
+                                            class="mt-3 text-xs font-bold text-yellow-700 hover:text-yellow-600 transition"
+                                        >
+                                            {{ expandedMatches[match.id] ? 'SEMBUNYIKAN DETAIL MAP' : 'LIHAT DETAIL MAP' }}
+                                        </button>
                                     </div>
-                                    <div v-if="expandedMatches[match.id] && match.games.length > 0" class="border-t border-slate-200 bg-slate-50/50 px-6 py-6 space-y-6">
-                                        <div v-for="game in match.games" :key="game.id" class="border border-slate-200/55 rounded-xl bg-white overflow-hidden">
-                                            <div class="bg-slate-100 px-4 py-3 flex items-center justify-between border-b border-slate-200">
-                                                <div class="text-sm font-bold text-slate-700">MAP #{{ game.game_number }}</div>
-                                                <div class="text-xs text-slate-600 flex items-center gap-4">
-                                                    <span v-if="game.duration_seconds">⏱️ {{ Math.floor(game.duration_seconds / 60) }}m {{ game.duration_seconds % 60 }}s</span>
-                                                    <span class="font-extrabold text-yellow-700">Pemenang: {{ game.winner_team_id === match.team_a_id ? match.team_a.name : match.team_b.name }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full text-left text-xs border-collapse">
-                                                    <thead>
-                                                        <tr class="border-b border-slate-200 text-slate-600 bg-slate-900/30">
-                                                            <th class="p-3">Player</th>
-                                                            <th class="p-3">Hero</th>
-                                                            <th class="p-3">K/D/A</th>
-                                                            <th class="p-3">Gold</th>
-                                                            <th class="p-3">Rating</th>
-                                                            <th class="p-3 text-center">MVP</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="stat in game.player_stats || []" :key="stat.id" :class="{'bg-yellow-950/20': stat.is_mvp}" class="border-b border-slate-200/40 hover:bg-slate-100">
-                                                            <td class="p-3 font-bold">
-                                                                <div class="flex flex-col">
-                                                                    <span>{{ stat.player.name }}</span>
-                                                                    <span class="text-[10px] text-slate-400 uppercase">{{ formatRole(stat.player.role) }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-3 font-semibold text-slate-700">{{ stat.hero }}</td>
-                                                            <td class="p-3 font-mono text-slate-800">
-                                                                <span class="text-green-600 font-bold">{{ stat.kills }}</span>/
-                                                                <span class="text-red-600 font-bold">{{ stat.deaths }}</span>/
-                                                                <span class="text-blue-400 font-bold">{{ stat.assists }}</span>
-                                                            </td>
-                                                            <td class="p-3 text-yellow-600 font-semibold">{{ stat.gold_earned.toLocaleString('id-ID') }}</td>
-                                                            <td class="p-3 font-extrabold text-yellow-700">{{ stat.rating }}</td>
-                                                            <td class="p-3 text-center">
-                                                                <span v-if="stat.is_mvp" class="bg-yellow-500 text-black px-2 py-0.5 rounded font-black text-[10px] uppercase shadow-md shadow-none">MVP</span>
-                                                                <span v-else class="text-slate-700">-</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr v-if="!game.player_stats || game.player_stats.length === 0">
-                                                            <td colspan="6" class="p-4 text-center text-slate-600">Tidak ada detail statistik player untuk game ini.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+
+                                    <!-- Team B -->
+                                    <div class="flex-1 flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
+                                        <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
+                                            <img v-if="match.team_b && match.team_b.logo" :src="match.team_b.logo" class="max-h-full max-w-full object-contain" />
+                                            <span v-else class="text-slate-600 text-xl">🛡️</span>
+                                        </div>
+                                        <div class="text-center md:text-left">
+                                            <h4 :class="getWinnerClass(match, 'B')" class="text-lg font-black tracking-wide uppercase">{{ match.team_b ? match.team_b.name : 'WAITING' }}</h4>
+                                            <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Expandable Game & Player Stats -->
+                                <div v-if="expandedMatches[match.id] && match.games.length > 0" class="border-t border-slate-200 bg-slate-50/50 px-6 py-6 space-y-6">
+                                    <div v-for="game in match.games" :key="game.id" class="border border-slate-200/55 rounded-xl bg-white overflow-hidden">
+                                        
+                                        <!-- Game Banner -->
+                                        <div class="bg-slate-100 px-4 py-3 flex items-center justify-between border-b border-slate-200">
+                                            <div class="text-sm font-bold text-slate-700">MAP #{{ game.game_number }}</div>
+                                            <div class="text-xs text-slate-600 flex items-center gap-4">
+                                                <span v-if="game.duration_seconds">⏱️ {{ Math.floor(game.duration_seconds / 60) }}m {{ game.duration_seconds % 60 }}s</span>
+                                                <span class="font-extrabold text-yellow-700">Pemenang: {{ game.winner_team_id === match.team_a_id ? match.team_a.name : match.team_b.name }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Player Game Stats table -->
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-left text-xs border-collapse">
+                                                <thead>
+                                                    <tr class="border-b border-slate-200 text-slate-600 bg-slate-900/30">
+                                                        <th class="p-3">Player</th>
+                                                        <th class="p-3">Hero</th>
+                                                        <th class="p-3">K/D/A</th>
+                                                        <th class="p-3">Gold</th>
+                                                        <th class="p-3">Rating</th>
+                                                        <th class="p-3 text-center">MVP</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr 
+                                                        v-for="stat in game.player_stats || []" 
+                                                        :key="stat.id" 
+                                                        :class="{'bg-yellow-950/20': stat.is_mvp}"
+                                                        class="border-b border-slate-200/40 hover:bg-slate-100"
+                                                    >
+                                                        <td class="p-3 font-bold">
+                                                            <div class="flex flex-col">
+                                                                <span>{{ stat.player.name }}</span>
+                                                                <span class="text-[10px] text-slate-400 uppercase">{{ formatRole(stat.player.role) }}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="p-3 font-semibold text-slate-700">{{ stat.hero }}</td>
+                                                        <td class="p-3 font-mono text-slate-800">
+                                                            <span class="text-green-600 font-bold">{{ stat.kills }}</span>/
+                                                            <span class="text-red-600 font-bold">{{ stat.deaths }}</span>/
+                                                            <span class="text-blue-400 font-bold">{{ stat.assists }}</span>
+                                                        </td>
+                                                        <td class="p-3 text-yellow-600 font-semibold">{{ stat.gold_earned.toLocaleString('id-ID') }}</td>
+                                                        <td class="p-3 font-extrabold text-yellow-700">{{ stat.rating }}</td>
+                                                        <td class="p-3 text-center">
+                                                            <span v-if="stat.is_mvp" class="bg-yellow-500 text-black px-2 py-0.5 rounded font-black text-[10px] uppercase shadow-md shadow-none">MVP</span>
+                                                            <span v-else class="text-slate-700">-</span>
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Fallback if playerStats not loaded -->
+                                                    <tr v-if="!game.player_stats || game.player_stats.length === 0">
+                                                        <td colspan="6" class="p-4 text-center text-slate-600">Tidak ada detail statistik player untuk game ini.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-
-                        <!-- 20:30 Slot -->
-                        <div v-if="currentGroup.slots['20:30'].length > 0" class="space-y-4">
-                            <div class="flex items-center gap-2 border-l-4 border-amber-500 pl-3">
-                                <span class="bg-amber-100 text-amber-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Match 2 (20:30 WIB)</span>
-                            </div>
-                            <div class="grid grid-cols-1 gap-6">
-                                <div v-for="match in currentGroup.slots['20:30']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-slate-200 transition">
-                                    <div class="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200/50">
-                                        <div class="flex items-center gap-2">
-                                            <span class="bg-amber-100 text-amber-600 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                                {{ match.round_name }}
-                                            </span>
-                                            <span v-if="match.bracket_type" class="bg-yellow-100 text-yellow-700 border border-yellow-800/40/30 text-xs font-bold px-3 py-1 rounded-full">
-                                                {{ match.bracket_type }} BRACKET
-                                            </span>
-                                            <span class="text-slate-400 text-xs font-semibold">BO{{ match.best_of }}</span>
-                                        </div>
-                                        <div class="text-slate-600 text-xs font-bold">
-                                            {{ match.scheduled_at ? new Date(match.scheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Belum Terjadwal' }}
-                                        </div>
-                                    </div>
-                                    <div class="px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                                        <div class="flex-1 flex items-center justify-center md:justify-end gap-4 w-full md:w-auto">
-                                            <div class="text-center md:text-right">
-                                                <h4 :class="getWinnerClass(match, 'A')" class="text-lg font-black tracking-wide uppercase">{{ match.team_a ? match.team_a.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_a && match.team_a.logo" :src="match.team_a.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-col items-center">
-                                            <div class="bg-slate-50 px-6 py-2 rounded-2xl border border-slate-200/80 flex items-center gap-6 shadow-inner">
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_a_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_a_id ? getScore(match, match.team_a_id) : '-' }}
-                                                </span>
-                                                <span class="text-slate-600 text-sm font-black uppercase tracking-widest">VS</span>
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_b_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_b_id ? getScore(match, match.team_b_id) : '-' }}
-                                                </span>
-                                            </div>
-                                            <button @click="toggleMatch(match.id)" v-if="match.games.length > 0" class="mt-3 text-xs font-bold text-yellow-700 hover:text-yellow-600 transition">
-                                                {{ expandedMatches[match.id] ? 'SEMBUNYIKAN DETAIL MAP' : 'LIHAT DETAIL MAP' }}
-                                            </button>
-                                        </div>
-                                        <div class="flex-1 flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_b && match.team_b.logo" :src="match.team_b.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
-                                            <div class="text-center md:text-left">
-                                                <h4 :class="getWinnerClass(match, 'B')" class="text-lg font-black tracking-wide uppercase">{{ match.team_b ? match.team_b.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div v-if="expandedMatches[match.id] && match.games.length > 0" class="border-t border-slate-200 bg-slate-50/50 px-6 py-6 space-y-6">
-                                        <div v-for="game in match.games" :key="game.id" class="border border-slate-200/55 rounded-xl bg-white overflow-hidden">
-                                            <div class="bg-slate-100 px-4 py-3 flex items-center justify-between border-b border-slate-200">
-                                                <div class="text-sm font-bold text-slate-700">MAP #{{ game.game_number }}</div>
-                                                <div class="text-xs text-slate-600 flex items-center gap-4">
-                                                    <span v-if="game.duration_seconds">⏱️ {{ Math.floor(game.duration_seconds / 60) }}m {{ game.duration_seconds % 60 }}s</span>
-                                                    <span class="font-extrabold text-yellow-700">Pemenang: {{ game.winner_team_id === match.team_a_id ? match.team_a.name : match.team_b.name }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full text-left text-xs border-collapse">
-                                                    <thead>
-                                                        <tr class="border-b border-slate-200 text-slate-600 bg-slate-900/30">
-                                                            <th class="p-3">Player</th>
-                                                            <th class="p-3">Hero</th>
-                                                            <th class="p-3">K/D/A</th>
-                                                            <th class="p-3">Gold</th>
-                                                            <th class="p-3">Rating</th>
-                                                            <th class="p-3 text-center">MVP</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="stat in game.player_stats || []" :key="stat.id" :class="{'bg-yellow-950/20': stat.is_mvp}" class="border-b border-slate-200/40 hover:bg-slate-100">
-                                                            <td class="p-3 font-bold">
-                                                                <div class="flex flex-col">
-                                                                    <span>{{ stat.player.name }}</span>
-                                                                    <span class="text-[10px] text-slate-400 uppercase">{{ formatRole(stat.player.role) }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-3 font-semibold text-slate-700">{{ stat.hero }}</td>
-                                                            <td class="p-3 font-mono text-slate-800">
-                                                                <span class="text-green-600 font-bold">{{ stat.kills }}</span>/
-                                                                <span class="text-red-600 font-bold">{{ stat.deaths }}</span>/
-                                                                <span class="text-blue-400 font-bold">{{ stat.assists }}</span>
-                                                            </td>
-                                                            <td class="p-3 text-yellow-600 font-semibold">{{ stat.gold_earned.toLocaleString('id-ID') }}</td>
-                                                            <td class="p-3 font-extrabold text-yellow-700">{{ stat.rating }}</td>
-                                                            <td class="p-3 text-center">
-                                                                <span v-if="stat.is_mvp" class="bg-yellow-500 text-black px-2 py-0.5 rounded font-black text-[10px] uppercase shadow-md shadow-none">MVP</span>
-                                                                <span v-else class="text-slate-700">-</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr v-if="!game.player_stats || game.player_stats.length === 0">
-                                                            <td colspan="6" class="p-4 text-center text-slate-600">Tidak ada detail statistik player untuk game ini.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Other Slots -->
-                        <div v-if="currentGroup.slots['Lainnya'].length > 0" class="space-y-4">
-                            <div class="flex items-center gap-2 border-l-4 border-slate-400 pl-3">
-                                <span class="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Pertandingan Lain / Belum Terjadwal</span>
-                            </div>
-                            <div class="grid grid-cols-1 gap-6">
-                                <div v-for="match in currentGroup.slots['Lainnya']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden hover:border-slate-200 transition">
-                                    <div class="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200/50">
-                                        <div class="flex items-center gap-2">
-                                            <span class="bg-amber-100 text-amber-600 border border-amber-300/40 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                                {{ match.round_name }}
-                                            </span>
-                                            <span v-if="match.bracket_type" class="bg-yellow-100 text-yellow-700 border border-yellow-800/40/30 text-xs font-bold px-3 py-1 rounded-full">
-                                                {{ match.bracket_type }} BRACKET
-                                            </span>
-                                            <span class="text-slate-400 text-xs font-semibold">BO{{ match.best_of }}</span>
-                                        </div>
-                                        <div class="text-slate-600 text-xs font-bold">
-                                            {{ match.scheduled_at ? new Date(match.scheduled_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'Belum Terjadwal' }}
-                                        </div>
-                                    </div>
-                                    <div class="px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                                        <div class="flex-1 flex items-center justify-center md:justify-end gap-4 w-full md:w-auto">
-                                            <div class="text-center md:text-right">
-                                                <h4 :class="getWinnerClass(match, 'A')" class="text-lg font-black tracking-wide uppercase">{{ match.team_a ? match.team_a.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_a && match.team_a.logo" :src="match.team_a.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-col items-center">
-                                            <div class="bg-slate-50 px-6 py-2 rounded-2xl border border-slate-200/80 flex items-center gap-6 shadow-inner">
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_a_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_a_id ? getScore(match, match.team_a_id) : '-' }}
-                                                </span>
-                                                <span class="text-slate-600 text-sm font-black uppercase tracking-widest">VS</span>
-                                                <span :class="{'text-yellow-700 font-black': match.winner_team_id === match.team_b_id}" class="text-3xl font-extrabold text-slate-700">
-                                                    {{ match.team_b_id ? getScore(match, match.team_b_id) : '-' }}
-                                                </span>
-                                            </div>
-                                            <button @click="toggleMatch(match.id)" v-if="match.games.length > 0" class="mt-3 text-xs font-bold text-yellow-700 hover:text-yellow-600 transition">
-                                                {{ expandedMatches[match.id] ? 'SEMBUNYIKAN DETAIL MAP' : 'LIHAT DETAIL MAP' }}
-                                            </button>
-                                        </div>
-                                        <div class="flex-1 flex items-center justify-center md:justify-start gap-4 w-full md:w-auto">
-                                            <div class="w-14 h-14 rounded-full bg-slate-100/50 border border-slate-200 flex items-center justify-center p-2">
-                                                <img v-if="match.team_b && match.team_b.logo" :src="match.team_b.logo" class="max-h-full max-w-full object-contain" />
-                                                <span v-else class="text-slate-600 text-xl">🛡️</span>
-                                            </div>
-                                            <div class="text-center md:text-left">
-                                                <h4 :class="getWinnerClass(match, 'B')" class="text-lg font-black tracking-wide uppercase">{{ match.team_b ? match.team_b.name : 'WAITING' }}</h4>
-                                                <p class="text-xs text-slate-400 font-bold">LIGA SEED</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div v-if="expandedMatches[match.id] && match.games.length > 0" class="border-t border-slate-200 bg-slate-50/50 px-6 py-6 space-y-6">
-                                        <div v-for="game in match.games" :key="game.id" class="border border-slate-200/55 rounded-xl bg-white overflow-hidden">
-                                            <div class="bg-slate-100 px-4 py-3 flex items-center justify-between border-b border-slate-200">
-                                                <div class="text-sm font-bold text-slate-700">MAP #{{ game.game_number }}</div>
-                                                <div class="text-xs text-slate-600 flex items-center gap-4">
-                                                    <span v-if="game.duration_seconds">⏱️ {{ Math.floor(game.duration_seconds / 60) }}m {{ game.duration_seconds % 60 }}s</span>
-                                                    <span class="font-extrabold text-yellow-700">Pemenang: {{ game.winner_team_id === match.team_a_id ? match.team_a.name : match.team_b.name }}</span>
-                                                </div>
-                                            </div>
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full text-left text-xs border-collapse">
-                                                    <thead>
-                                                        <tr class="border-b border-slate-200 text-slate-600 bg-slate-900/30">
-                                                            <th class="p-3">Player</th>
-                                                            <th class="p-3">Hero</th>
-                                                            <th class="p-3">K/D/A</th>
-                                                            <th class="p-3">Gold</th>
-                                                            <th class="p-3">Rating</th>
-                                                            <th class="p-3 text-center">MVP</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="stat in game.player_stats || []" :key="stat.id" :class="{'bg-yellow-950/20': stat.is_mvp}" class="border-b border-slate-200/40 hover:bg-slate-100">
-                                                            <td class="p-3 font-bold">
-                                                                <div class="flex flex-col">
-                                                                    <span>{{ stat.player.name }}</span>
-                                                                    <span class="text-[10px] text-slate-400 uppercase">{{ formatRole(stat.player.role) }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-3 font-semibold text-slate-700">{{ stat.hero }}</td>
-                                                            <td class="p-3 font-mono text-slate-800">
-                                                                <span class="text-green-600 font-bold">{{ stat.kills }}</span>/
-                                                                <span class="text-red-600 font-bold">{{ stat.deaths }}</span>/
-                                                                <span class="text-blue-400 font-bold">{{ stat.assists }}</span>
-                                                            </td>
-                                                            <td class="p-3 text-yellow-600 font-semibold">{{ stat.gold_earned.toLocaleString('id-ID') }}</td>
-                                                            <td class="p-3 font-extrabold text-yellow-700">{{ stat.rating }}</td>
-                                                            <td class="p-3 text-center">
-                                                                <span v-if="stat.is_mvp" class="bg-yellow-500 text-black px-2 py-0.5 rounded font-black text-[10px] uppercase shadow-md shadow-none">MVP</span>
-                                                                <span v-else class="text-slate-700">-</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr v-if="!game.player_stats || game.player_stats.length === 0">
-                                                            <td colspan="6" class="p-4 text-center text-slate-600">Tidak ada detail statistik player untuk game ini.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div v-else class="text-center py-12 bg-slate-50 border border-slate-200/60 rounded-3xl text-sm text-slate-600 font-medium animate-fadeIn">
+                            Tidak ada pertandingan pada pukul {{ activeTimeTab }} WIB di tanggal ini.
                         </div>
                     </div>
                 </div>
