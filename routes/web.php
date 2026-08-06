@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/setup', [TournamentAdminController::class, 'createSetup'])->name('admin.setup');
     Route::post('/admin/generate-playoffs', [TournamentAdminController::class, 'generatePlayoffs'])->name('admin.generate-playoffs');
     Route::post('/admin/matches/{match}/game', [TournamentAdminController::class, 'storeGameScore'])->name('admin.game.store');
+    Route::post('/admin/matches/{match}/ocr-score', [TournamentAdminController::class, 'ocrMatchScore'])->name('admin.game.ocr');
     Route::post('/admin/lock-awards', [TournamentAdminController::class, 'lockAwards'])->name('admin.lock-awards');
     Route::post('/admin/reset', [TournamentAdminController::class, 'resetTournament'])->name('admin.reset');
     Route::patch('/admin/matches/{match}', [TournamentAdminController::class, 'updateMatch'])->name('admin.matches.update');

@@ -264,6 +264,150 @@ class TournamentAdminController extends Controller
     }
 
     /**
+     * Process match scoreboard screenshot using Fireworks AI OCR.
+     */
+    public function ocrMatchScore(Request $request, MlMatch $match)
+    {
+        $request->validate([
+            'screenshot' => 'required|image|max:10240', // max 10MB
+        ]);
+
+        $apiKey = env('FIREWORKS_API_KEY');
+        $model = env('FIREWORKS_VISION_MODEL', 'accounts/fireworks/models/minimax-m3');
+
+        if (empty($apiKey)) {
+            return response()->json([
+                'error' => 'Fireworks API Key belum dikonfigurasi di file .env'
+            ], 500);
+        }
+
+        // Get rosters for Team A and Team B
+        $teamAPlayers = Player::where('team_id', $match->team_a_id)->get();
+        $teamBPlayers = Player::where('team_id', $match->team_b_id)->get();
+
+        $rosterInfo = "Roster for Team A (" . $match->teamA->name . ", ID: " . $match->team_a_id . "):\n";
+        foreach ($teamAPlayers as $player) {
+            $ign = trim(explode('-', $player->name)[0]);
+            $rosterInfo .= "- Player ID: {$player->id}, Name in DB: '{$player->name}', IGN/In-Game Name: '{$ign}', Role: '{$player->role}'\n";
+        }
+
+        $rosterInfo .= "\nRoster for Team B (" . $match->teamB->name . ", ID: " . $match->team_b_id . "):\n";
+        foreach ($teamBPlayers as $player) {
+            $ign = trim(explode('-', $player->name)[0]);
+            $rosterInfo .= "- Player ID: {$player->id}, Name in DB: '{$player->name}', IGN/In-Game Name: '{$ign}', Role: '{$player->role}'\n";
+        }
+
+        $file = $request->file('screenshot');
+        $imageBytes = file_get_contents($file->getRealPath());
+        $base64Image = base64_encode($imageBytes);
+        $mimeType = $file->getMimeType();
+
+        $prompt = "You are an expert Mobile Legends: Bang Bang (MLBB) match analyst.
+Analyze the provided end-game screenshot (which shows the scoreboard of 10 players, 5 on Team A and 5 on Team B, with stats like KDA, Hero, Gold, Rating, and MVP).
+
+Map the players in the screenshot to the database player IDs based on their In-Game Names (IGNs). Look at both spelling similarity and visual context.
+Here are the rosters with player IDs from our database:
+
+{$rosterInfo}
+
+Winning Team: Determine which team won the match. The winner will be one of these IDs: {$match->team_a_id} ({$match->teamA->name}) or {$match->team_b_id} ({$match->teamB->name}). Look at the scoreboard headers (e.g. Victory / Defeat or color cues).
+
+Match Duration: If you see the match duration (e.g. 15:32 or similar), extract it and convert it to total seconds (e.g., 15*60 + 32 = 932). If not found or unclear, default to 900.
+
+For each of the 10 players, extract:
+1. player_id (mapped from the roster above)
+2. hero (English name of the hero they played, e.g. Tigreal, Pharsa, Roger, etc.)
+3. kills (integer)
+4. deaths (integer)
+5. assists (integer)
+6. rating (float/decimal rating shown in the screenshot, e.g. 10.5, 3.4. If not found, estimate based on KDA)
+7. gold_earned (integer gold earned, e.g. 12000, 8500. If not shown or unclear, estimate around 10000)
+8. is_mvp (boolean, set to true for EXACTLY ONE player who has the MVP or gold medal symbol on the winning team, others must be false)
+
+Return a JSON object conforming exactly to this structure:
+{
+  \"winner_team_id\": <winner_team_id>,
+  \"duration_seconds\": <duration_seconds>,
+  \"player_stats\": [
+    {
+      \"player_id\": <player_id>,
+      \"hero\": \"<hero_name>\",
+      \"kills\": <kills>,
+      \"deaths\": <deaths>,
+      \"assists\": <assists>,
+      \"rating\": <rating>,
+      \"gold_earned\": <gold_earned>,
+      \"is_mvp\": <true_or_false>
+    },
+    ... (exactly 10 players)
+  ]
+}";
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Authorization' => "Bearer {$apiKey}",
+                'Content-Type' => 'application/json',
+            ])->timeout(60)->post('https://api.fireworks.ai/inference/v1/chat/completions', [
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => $prompt,
+                            ],
+                            [
+                                'type' => 'image_url',
+                                'image_url' => [
+                                    'url' => "data:{$mimeType};base64,{$base64Image}",
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'response_format' => [
+                    'type' => 'json_object',
+                ],
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'error' => 'Gagal memproses gambar melalui Fireworks API: ' . $response->body()
+                ], 500);
+            }
+
+            $data = $response->json();
+            $messageContent = $data['choices'][0]['message']['content'] ?? null;
+
+            if (!$messageContent) {
+                return response()->json([
+                    'error' => 'API tidak mengembalikan hasil pembacaan gambar.'
+                ], 500);
+            }
+
+            $parsedJson = json_decode($messageContent, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                if (preg_match('/\{.*\}/s', $messageContent, $matches)) {
+                    $parsedJson = json_decode($matches[0], true);
+                }
+            }
+
+            if (!$parsedJson || !isset($parsedJson['player_stats'])) {
+                return response()->json([
+                    'error' => 'Gagal mem-parsing format hasil pembacaan AI: ' . $messageContent
+                ], 500);
+            }
+
+            return response()->json($parsedJson);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Lock awards at the end of the competition.
      */
     public function lockAwards(): RedirectResponse

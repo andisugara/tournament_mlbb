@@ -215,6 +215,12 @@ class TournamentSeeder extends Seeder
                 }
             }
 
+            // Determine match time (19:30 or 20:30 if playing twice)
+            $time = '19:30:00';
+            if ($teamMatchCountPerDate[$teamA->id][$selectedDate] > 0 || $teamMatchCountPerDate[$teamB->id][$selectedDate] > 0) {
+                $time = '20:30:00';
+            }
+
             // Update trackers
             $teamMatchCountPerDate[$teamA->id][$selectedDate]++;
             $teamMatchCountPerDate[$teamB->id][$selectedDate]++;
@@ -229,7 +235,7 @@ class TournamentSeeder extends Seeder
                 'team_b_id' => $teamB->id,
                 'best_of' => $competition->regular_season_best_of,
                 'round_name' => $roundName,
-                'scheduled_at' => $selectedDate . ' 19:30:00',
+                'scheduled_at' => $selectedDate . ' ' . $time,
             ]);
         }
     }
