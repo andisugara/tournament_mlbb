@@ -390,6 +390,67 @@ const submitGameScore = () => {
 
 // Admin tabs
 const adminTab = ref('matches');
+
+// Date Tabs Scheduling States
+const activeDateTab = ref('');
+
+const groupedMatches = computed(() => {
+    const groups = {};
+    props.matches.forEach(match => {
+        let dateStr = 'Belum Terjadwal';
+        if (match.scheduled_at) {
+            const d = new Date(match.scheduled_at);
+            dateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        
+        if (!groups[dateStr]) {
+            groups[dateStr] = {
+                date: dateStr,
+                rawDate: match.scheduled_at ? match.scheduled_at.split(' ')[0] : '9999-99-99', // for sorting
+                matches: []
+            };
+        }
+        groups[dateStr].matches.push(match);
+    });
+
+    // Convert to sorted array
+    const sortedGroups = Object.values(groups).sort((a, b) => a.rawDate.localeCompare(b.rawDate));
+    
+    // Split into slots
+    sortedGroups.forEach(group => {
+        group.slots = {
+            '19:30': [],
+            '20:30': [],
+            'Lainnya': []
+        };
+        group.matches.forEach(match => {
+            if (match.scheduled_at) {
+                const timeStr = match.scheduled_at.split(' ')[1] || '';
+                if (timeStr.includes('19:30')) {
+                    group.slots['19:30'].push(match);
+                } else if (timeStr.includes('20:30')) {
+                    group.slots['20:30'].push(match);
+                } else {
+                    group.slots['Lainnya'].push(match);
+                }
+            } else {
+                group.slots['Lainnya'].push(match);
+            }
+        });
+    });
+
+    return sortedGroups;
+});
+
+watch(groupedMatches, (newGroups) => {
+    if (newGroups.length > 0 && !activeDateTab.value) {
+        activeDateTab.value = newGroups[0].date;
+    }
+}, { immediate: true });
+
+const currentGroup = computed(() => {
+    return groupedMatches.value.find(g => g.date === activeDateTab.value) || groupedMatches.value[0] || null;
+});
 </script>
 
 <template>
@@ -540,44 +601,124 @@ const adminTab = ref('matches');
 
                     <!-- Tab content: Matches -->
                     <div v-if="adminTab === 'matches'" class="space-y-6">
-                        <div class="grid grid-cols-1 gap-4">
-                            <div v-for="match in matches" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="bg-slate-100 text-slate-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">{{ match.round_name }}</span>
-                                        <span v-if="match.bracket_type" class="bg-amber-100 text-amber-700 border border-amber-300/50 text-[10px] font-bold px-2 py-0.5 rounded">{{ match.bracket_type }}</span>
-                                        <span class="text-xs text-slate-400">BO{{ match.best_of }}</span>
-                                        <span class="text-xs text-slate-400 font-bold">({{ match.match_code || 'LIGA' }})</span>
-                                    </div>
-                                    <div class="text-slate-700 font-black text-base uppercase">
-                                        {{ match.team_a ? match.team_a.name : 'TBD' }} 
-                                        <span class="text-slate-400 px-2">VS</span> 
-                                        {{ match.team_b ? match.team_b.name : 'TBD' }}
-                                    </div>
-                                </div>
+                        <!-- Date Selection Tabs -->
+                        <div class="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6 overflow-x-auto max-w-full whitespace-nowrap no-scrollbar">
+                            <button 
+                                v-for="group in groupedMatches" 
+                                :key="group.date" 
+                                @click="activeDateTab = group.date" 
+                                :class="activeDateTab === group.date ? 'bg-yellow-500 text-slate-900 shadow-md font-black' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold'" 
+                                class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition"
+                            >
+                                {{ group.date }}
+                            </button>
+                        </div>
 
-                                <div class="flex items-center gap-4">
-                                    <div v-if="match.winner_team_id" class="text-right">
-                                        <span class="text-xs text-slate-400 font-bold block uppercase">Pemenang</span>
-                                        <strong class="text-yellow-700 text-sm font-black uppercase">{{ match.winner_team.name }}</strong>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button 
-                                            @click="openEditMatchModal(match)"
-                                            class="bg-slate-900 hover:bg-slate-100 text-slate-700 border border-slate-200 hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold transition"
-                                        >
-                                            ✏️ Edit
-                                        </button>
-                                        <button 
-                                            @click="openScoreModal(match)"
-                                            v-if="match.team_a_id && match.team_b_id"
-                                            class="bg-slate-100 hover:bg-slate-700 text-slate-800 border border-slate-200 hover:border-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold transition"
-                                        >
-                                            {{ match.games.length > 0 ? '🎮 Score Map' : '🎮 Score Map' }}
-                                        </button>
+                        <!-- Subgrouped Match List -->
+                        <div v-if="currentGroup" class="space-y-8">
+                            
+                            <!-- 19:30 Slot -->
+                            <div v-if="currentGroup.slots['19:30'].length > 0" class="space-y-4">
+                                <div class="flex items-center gap-2 border-l-4 border-yellow-500 pl-3">
+                                    <span class="bg-yellow-100 text-yellow-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Match 1 (19:30 WIB)</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div v-for="match in currentGroup.slots['19:30']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="bg-slate-100 text-slate-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">{{ match.round_name }}</span>
+                                                <span v-if="match.bracket_type" class="bg-amber-100 text-amber-700 border border-amber-300/50 text-[10px] font-bold px-2 py-0.5 rounded">{{ match.bracket_type }}</span>
+                                                <span class="text-xs text-slate-400">BO{{ match.best_of }}</span>
+                                                <span class="text-xs text-slate-400 font-bold">({{ match.match_code || 'LIGA' }})</span>
+                                            </div>
+                                            <div class="text-slate-700 font-black text-base uppercase">
+                                                {{ match.team_a ? match.team_a.name : 'TBD' }} 
+                                                <span class="text-slate-400 px-2">VS</span> 
+                                                {{ match.team_b ? match.team_b.name : 'TBD' }}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div v-if="match.winner_team_id" class="text-right">
+                                                <span class="text-xs text-slate-400 font-bold block uppercase">Pemenang</span>
+                                                <strong class="text-yellow-700 text-sm font-black uppercase">{{ match.winner_team.name }}</strong>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button @click="openEditMatchModal(match)" class="bg-slate-900 hover:bg-slate-100 text-slate-700 border border-slate-200 hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold transition">✏️ Edit</button>
+                                                <button @click="openScoreModal(match)" v-if="match.team_a_id && match.team_b_id" class="bg-slate-100 hover:bg-slate-700 text-slate-800 border border-slate-200 hover:border-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">🎮 Score Map</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- 20:30 Slot -->
+                            <div v-if="currentGroup.slots['20:30'].length > 0" class="space-y-4">
+                                <div class="flex items-center gap-2 border-l-4 border-amber-500 pl-3">
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Match 2 (20:30 WIB)</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div v-for="match in currentGroup.slots['20:30']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="bg-slate-100 text-slate-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">{{ match.round_name }}</span>
+                                                <span v-if="match.bracket_type" class="bg-amber-100 text-amber-700 border border-amber-300/50 text-[10px] font-bold px-2 py-0.5 rounded">{{ match.bracket_type }}</span>
+                                                <span class="text-xs text-slate-400">BO{{ match.best_of }}</span>
+                                                <span class="text-xs text-slate-400 font-bold">({{ match.match_code || 'LIGA' }})</span>
+                                            </div>
+                                            <div class="text-slate-700 font-black text-base uppercase">
+                                                {{ match.team_a ? match.team_a.name : 'TBD' }} 
+                                                <span class="text-slate-400 px-2">VS</span> 
+                                                {{ match.team_b ? match.team_b.name : 'TBD' }}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div v-if="match.winner_team_id" class="text-right">
+                                                <span class="text-xs text-slate-400 font-bold block uppercase">Pemenang</span>
+                                                <strong class="text-yellow-700 text-sm font-black uppercase">{{ match.winner_team.name }}</strong>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button @click="openEditMatchModal(match)" class="bg-slate-900 hover:bg-slate-100 text-slate-700 border border-slate-200 hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold transition">✏️ Edit</button>
+                                                <button @click="openScoreModal(match)" v-if="match.team_a_id && match.team_b_id" class="bg-slate-100 hover:bg-slate-700 text-slate-800 border border-slate-200 hover:border-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">🎮 Score Map</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Other Slots -->
+                            <div v-if="currentGroup.slots['Lainnya'].length > 0" class="space-y-4">
+                                <div class="flex items-center gap-2 border-l-4 border-slate-400 pl-3">
+                                    <span class="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded tracking-wider">Pertandingan Lain / Belum Terjadwal</span>
+                                </div>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div v-for="match in currentGroup.slots['Lainnya']" :key="match.id" class="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="bg-slate-100 text-slate-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">{{ match.round_name }}</span>
+                                                <span v-if="match.bracket_type" class="bg-amber-100 text-amber-700 border border-amber-300/50 text-[10px] font-bold px-2 py-0.5 rounded">{{ match.bracket_type }}</span>
+                                                <span class="text-xs text-slate-400">BO{{ match.best_of }}</span>
+                                                <span class="text-xs text-slate-400 font-bold">({{ match.match_code || 'LIGA' }})</span>
+                                            </div>
+                                            <div class="text-slate-700 font-black text-base uppercase">
+                                                {{ match.team_a ? match.team_a.name : 'TBD' }} 
+                                                <span class="text-slate-400 px-2">VS</span> 
+                                                {{ match.team_b ? match.team_b.name : 'TBD' }}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div v-if="match.winner_team_id" class="text-right">
+                                                <span class="text-xs text-slate-400 font-bold block uppercase">Pemenang</span>
+                                                <strong class="text-yellow-700 text-sm font-black uppercase">{{ match.winner_team.name }}</strong>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button @click="openEditMatchModal(match)" class="bg-slate-900 hover:bg-slate-100 text-slate-700 border border-slate-200 hover:border-slate-600 px-4 py-2.5 rounded-xl text-xs font-bold transition">✏️ Edit</button>
+                                                <button @click="openScoreModal(match)" v-if="match.team_a_id && match.team_b_id" class="bg-slate-100 hover:bg-slate-700 text-slate-800 border border-slate-200 hover:border-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold transition">🎮 Score Map</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
