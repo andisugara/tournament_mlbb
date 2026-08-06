@@ -398,15 +398,28 @@ const groupedMatches = computed(() => {
     const groups = {};
     props.matches.forEach(match => {
         let dateStr = 'Belum Terjadwal';
+        let rawDate = '9999-99-99';
         if (match.scheduled_at) {
             const d = new Date(match.scheduled_at);
-            dateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            if (!isNaN(d.getTime())) {
+                dateStr = d.toLocaleDateString('id-ID', {
+                    timeZone: 'Asia/Jakarta',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                
+                const year = d.toLocaleDateString('en-US', { timeZone: 'Asia/Jakarta', year: 'numeric' });
+                const month = d.toLocaleDateString('en-US', { timeZone: 'Asia/Jakarta', month: '2-digit' });
+                const day = d.toLocaleDateString('en-US', { timeZone: 'Asia/Jakarta', day: '2-digit' });
+                rawDate = `${year}-${month}-${day}`;
+            }
         }
         
         if (!groups[dateStr]) {
             groups[dateStr] = {
                 date: dateStr,
-                rawDate: match.scheduled_at ? match.scheduled_at.split(' ')[0] : '9999-99-99', // for sorting
+                rawDate: rawDate,
                 matches: []
             };
         }
@@ -416,7 +429,7 @@ const groupedMatches = computed(() => {
     // Convert to sorted array
     const sortedGroups = Object.values(groups).sort((a, b) => a.rawDate.localeCompare(b.rawDate));
     
-    // Split into slots
+    // Split into slots using robust timezone-aware hour checking
     sortedGroups.forEach(group => {
         group.slots = {
             '19:30': [],
@@ -425,11 +438,23 @@ const groupedMatches = computed(() => {
         };
         group.matches.forEach(match => {
             if (match.scheduled_at) {
-                const timeStr = match.scheduled_at.split(' ')[1] || '';
-                if (timeStr.includes('19:30')) {
-                    group.slots['19:30'].push(match);
-                } else if (timeStr.includes('20:30')) {
-                    group.slots['20:30'].push(match);
+                const d = new Date(match.scheduled_at);
+                if (!isNaN(d.getTime())) {
+                    const timeStr = d.toLocaleTimeString('id-ID', {
+                        timeZone: 'Asia/Jakarta',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    const normalizedTime = timeStr.replace('.', ':');
+                    
+                    if (normalizedTime.includes('19:30')) {
+                        group.slots['19:30'].push(match);
+                    } else if (normalizedTime.includes('20:30')) {
+                        group.slots['20:30'].push(match);
+                    } else {
+                        group.slots['Lainnya'].push(match);
+                    }
                 } else {
                     group.slots['Lainnya'].push(match);
                 }
