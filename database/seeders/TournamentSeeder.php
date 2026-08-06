@@ -145,143 +145,66 @@ class TournamentSeeder extends Seeder
         ]);
 
         // 6. Generate Round Robin Matches (Single Round Robin = 36 matches)
-        $matchPairs = [];
-        for ($i = 0; $i < count($teams); $i++) {
-            for ($j = $i + 1; $j < count($teams); $j++) {
-                $matchPairs[] = [$teams[$i], $teams[$j]];
-            }
-        }
+        // Hardcoded static schedule based on the exact matrix to ensure determinism and zero random changes.
+        $scheduleData = [
+            // 7 Agu
+            ['team_a' => 'Superr medmon', 'team_b' => 'Proximity Clan', 'date' => '2026-08-07', 'time' => '19:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'CROPINGIYAH', 'date' => '2026-08-07', 'time' => '19:30:00'],
+            ['team_a' => 'Wo makan siang mana wo', 'team_b' => 'FKON', 'date' => '2026-08-07', 'time' => '19:30:00'],
+            ['team_a' => 'Tim Teknis', 'team_b' => 'Octagram', 'date' => '2026-08-07', 'time' => '19:30:00'],
+            ['team_a' => 'Superr medmon', 'team_b' => 'Project VII', 'date' => '2026-08-07', 'time' => '20:30:00'],
+            ['team_a' => 'Proximity Clan', 'team_b' => 'Wo makan siang mana wo', 'date' => '2026-08-07', 'time' => '20:30:00'],
+            ['team_a' => 'CROPINGIYAH', 'team_b' => 'Octagram', 'date' => '2026-08-07', 'time' => '20:30:00'],
 
-        $dates = [
-            '2026-08-07', // Friday
-            '2026-08-10', // Monday
-            '2026-08-11', // Tuesday
-            '2026-08-12', // Wednesday
-            '2026-08-13', // Thursday
-            '2026-08-14', // Friday
+            // 10 Agu
+            ['team_a' => 'Superr medmon', 'team_b' => 'CROPINGIYAH', 'date' => '2026-08-10', 'time' => '19:30:00'],
+            ['team_a' => 'Proximity Clan', 'team_b' => 'Tim Teknis', 'date' => '2026-08-10', 'time' => '19:30:00'],
+            ['team_a' => 'Wo makan siang mana wo', 'team_b' => 'Octagram', 'date' => '2026-08-10', 'time' => '19:30:00'],
+            ['team_a' => 'FKON', 'team_b' => 'Solo Mix', 'date' => '2026-08-10', 'time' => '19:30:00'],
+            ['team_a' => 'Superr medmon', 'team_b' => 'Tim Teknis', 'date' => '2026-08-10', 'time' => '20:30:00'],
+
+            // 11 Agu
+            ['team_a' => 'Proximity Clan', 'team_b' => 'Octagram', 'date' => '2026-08-11', 'time' => '19:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'Solo Mix', 'date' => '2026-08-11', 'time' => '19:30:00'],
+            ['team_a' => 'CROPINGIYAH', 'team_b' => 'FKON', 'date' => '2026-08-11', 'time' => '19:30:00'],
+            ['team_a' => 'Wo makan siang mana wo', 'team_b' => 'Tim Teknis', 'date' => '2026-08-11', 'time' => '19:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'FKON', 'date' => '2026-08-11', 'time' => '20:30:00'],
+
+            // 12 Agu
+            ['team_a' => 'Superr medmon', 'team_b' => 'Octagram', 'date' => '2026-08-12', 'time' => '19:30:00'],
+            ['team_a' => 'Proximity Clan', 'team_b' => 'Project VII', 'date' => '2026-08-12', 'time' => '19:30:00'],
+            ['team_a' => 'CROPINGIYAH', 'team_b' => 'Wo makan siang mana wo', 'date' => '2026-08-12', 'time' => '19:30:00'],
+            ['team_a' => 'Tim Teknis', 'team_b' => 'Solo Mix', 'date' => '2026-08-12', 'time' => '19:30:00'],
+            ['team_a' => 'Proximity Clan', 'team_b' => 'Solo Mix', 'date' => '2026-08-12', 'time' => '20:30:00'],
+
+            // 13 Agu
+            ['team_a' => 'Superr medmon', 'team_b' => 'Wo makan siang mana wo', 'date' => '2026-08-13', 'time' => '19:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'Tim Teknis', 'date' => '2026-08-13', 'time' => '19:30:00'],
+            ['team_a' => 'CROPINGIYAH', 'team_b' => 'Solo Mix', 'date' => '2026-08-13', 'time' => '19:30:00'],
+            ['team_a' => 'FKON', 'team_b' => 'Octagram', 'date' => '2026-08-13', 'time' => '19:30:00'],
+            ['team_a' => 'Superr medmon', 'team_b' => 'FKON', 'date' => '2026-08-13', 'time' => '20:30:00'],
+            ['team_a' => 'Proximity Clan', 'team_b' => 'CROPINGIYAH', 'date' => '2026-08-13', 'time' => '20:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'Octagram', 'date' => '2026-08-13', 'time' => '20:30:00'],
+            ['team_a' => 'Wo makan siang mana wo', 'team_b' => 'Solo Mix', 'date' => '2026-08-13', 'time' => '20:30:00'],
+
+            // 14 Agu
+            ['team_a' => 'Proximity Clan', 'team_b' => 'FKON', 'date' => '2026-08-14', 'time' => '19:30:00'],
+            ['team_a' => 'Project VII', 'team_b' => 'Wo makan siang mana wo', 'date' => '2026-08-14', 'time' => '19:30:00'],
+            ['team_a' => 'CROPINGIYAH', 'team_b' => 'Tim Teknis', 'date' => '2026-08-14', 'time' => '19:30:00'],
+            ['team_a' => 'Octagram', 'team_b' => 'Solo Mix', 'date' => '2026-08-14', 'time' => '19:30:00'],
+            ['team_a' => 'Superr medmon', 'team_b' => 'Solo Mix', 'date' => '2026-08-14', 'time' => '20:30:00'],
+            ['team_a' => 'FKON', 'team_b' => 'Tim Teknis', 'date' => '2026-08-14', 'time' => '20:30:00'],
         ];
 
-        $scheduleSuccessful = false;
-        $finalSchedule = [];
-
-        // Shuffle-and-retry loop to find a 100% collision-free schedule using only 19:30 and 20:30 slots
-        while (!$scheduleSuccessful) {
-            shuffle($matchPairs);
-
-            $teamMatchCountPerDate = [];
-            $teamSlotsPerDate = [];
-            foreach ($teams as $t) {
-                foreach ($dates as $d) {
-                    $teamMatchCountPerDate[$t->id][$d] = 0;
-                    $teamSlotsPerDate[$t->id][$d] = [];
-                }
-            }
-
-            $dateMatchCount = array_fill_keys($dates, 0);
-            $matchesOnDate = [];
-            foreach ($dates as $d) {
-                $matchesOnDate[$d] = [];
-            }
-
-            $success = true;
-            $tempSchedule = [];
-
-            foreach ($matchPairs as $pair) {
-                $teamA = $pair[0];
-                $teamB = $pair[1];
-
-                $selectedDate = null;
-
-                // Try Mon-Wed (Aug 10-12) if neither team has a match on that day
-                // and the day has less than 4 matches (8 teams play, 1 rests)
-                foreach (['2026-08-10', '2026-08-11', '2026-08-12'] as $d) {
-                    if ($dateMatchCount[$d] < 4 && $teamMatchCountPerDate[$teamA->id][$d] === 0 && $teamMatchCountPerDate[$teamB->id][$d] === 0) {
-                        $selectedDate = $d;
-                        break;
-                    }
-                }
-
-                // Otherwise, schedule on Thursday/Friday (Aug 7, 13, 14), max 8 matches per day and max 2 matches per team
-                if (!$selectedDate) {
-                    $thuFriDates = ['2026-08-07', '2026-08-13', '2026-08-14'];
-                    // Sort Thu/Fri dates by current load to distribute evenly
-                    usort($thuFriDates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
-
-                    foreach ($thuFriDates as $d) {
-                        if ($dateMatchCount[$d] < 8 && $teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
-                            $tempMatches = $matchesOnDate[$d];
-                            $tempMatches[] = [$teamA->id, $teamB->id];
-                            if (self::isBipartite($tempMatches)) {
-                                $selectedDate = $d;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Fallback: try to schedule even if it means trying other dates, but keep it 2-colorable
-                if (!$selectedDate) {
-                    usort($dates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
-                    foreach ($dates as $d) {
-                        if ($teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
-                            $tempMatches = $matchesOnDate[$d];
-                            $tempMatches[] = [$teamA->id, $teamB->id];
-                            if (self::isBipartite($tempMatches)) {
-                                $selectedDate = $d;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!$selectedDate) {
-                    $success = false;
-                    break; // break out of matchPairs loop, try next shuffle
-                }
-
-                // Assign time slot (find first available time slot for both teams on this date: 19:30 or 20:30)
-                $timeSlots = ['19:30:00', '20:30:00'];
-                $time = null;
-                foreach ($timeSlots as $slot) {
-                    $teamABusy = in_array($slot, $teamSlotsPerDate[$teamA->id][$selectedDate]);
-                    $teamBBusy = in_array($slot, $teamSlotsPerDate[$teamB->id][$selectedDate]);
-                    if (!$teamABusy && !$teamBBusy) {
-                        $time = $slot;
-                        break;
-                    }
-                }
-
-                if ($time === null) {
-                    $success = false;
-                    break; // break out of matchPairs loop, try next shuffle
-                }
-
-                // Update trackers
-                $teamMatchCountPerDate[$teamA->id][$selectedDate]++;
-                $teamMatchCountPerDate[$teamB->id][$selectedDate]++;
-                $dateMatchCount[$selectedDate]++;
-                $teamSlotsPerDate[$teamA->id][$selectedDate][] = $time;
-                $teamSlotsPerDate[$teamB->id][$selectedDate][] = $time;
-                $matchesOnDate[$selectedDate][] = [$teamA->id, $teamB->id];
-
-                $tempSchedule[] = [
-                    'team_a' => $teamA,
-                    'team_b' => $teamB,
-                    'date' => $selectedDate,
-                    'time' => $time
-                ];
-            }
-
-            if ($success) {
-                $finalSchedule = $tempSchedule;
-                $scheduleSuccessful = true;
-            }
+        // Find teams by name in database to map correctly
+        $teamsByName = [];
+        foreach ($teams as $t) {
+            $teamsByName[$t->name] = $t;
         }
 
-        // Now create the matches in database from the successful schedule
-        foreach ($finalSchedule as $matchData) {
-            $teamA = $matchData['team_a'];
-            $teamB = $matchData['team_b'];
+        foreach ($scheduleData as $matchData) {
+            $teamA = $teamsByName[$matchData['team_a']];
+            $teamB = $teamsByName[$matchData['team_b']];
             $selectedDate = $matchData['date'];
             $time = $matchData['time'];
 
@@ -296,41 +219,5 @@ class TournamentSeeder extends Seeder
                 'scheduled_at' => $selectedDate . ' ' . $time,
             ]);
         }
-    }
-
-    private static function isBipartite(array $matches): bool
-    {
-        $n = count($matches);
-        $adj = array_fill(0, $n, []);
-        for ($i = 0; $i < $n; $i++) {
-            for ($j = $i + 1; $j < $n; $j++) {
-                // If two matches share a team, they are adjacent in the conflict graph
-                if (count(array_intersect($matches[$i], $matches[$j])) > 0) {
-                    $adj[$i][] = $j;
-                    $adj[$j][] = $i;
-                }
-            }
-        }
-
-        $colors = array_fill(0, $n, -1);
-        for ($i = 0; $i < $n; $i++) {
-            if ($colors[$i] === -1) {
-                $queue = [$i];
-                $colors[$i] = 0;
-                $head = 0;
-                while ($head < count($queue)) {
-                    $u = $queue[$head++];
-                    foreach ($adj[$u] as $v) {
-                        if ($colors[$v] === -1) {
-                            $colors[$v] = 1 - $colors[$u];
-                            $queue[] = $v;
-                        } elseif ($colors[$v] === $colors[$u]) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
     }
 }
