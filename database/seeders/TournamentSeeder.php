@@ -195,9 +195,6 @@ class TournamentSeeder extends Seeder
                 // Try Mon-Wed (Aug 10-12) if neither team has a match on that day
                 // and the day has less than 4 matches (8 teams play, 1 rests)
                 foreach (['2026-08-10', '2026-08-11', '2026-08-12'] as $d) {
-                    if ($d === '2026-08-13' && ($teamA->name === 'Project VII' || $teamB->name === 'Project VII')) {
-                        continue;
-                    }
                     if ($dateMatchCount[$d] < 4 && $teamMatchCountPerDate[$teamA->id][$d] === 0 && $teamMatchCountPerDate[$teamB->id][$d] === 0) {
                         $selectedDate = $d;
                         break;
@@ -211,9 +208,6 @@ class TournamentSeeder extends Seeder
                     usort($thuFriDates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
 
                     foreach ($thuFriDates as $d) {
-                        if ($d === '2026-08-13' && ($teamA->name === 'Project VII' || $teamB->name === 'Project VII')) {
-                            continue;
-                        }
                         if ($dateMatchCount[$d] < 8 && $teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
                             $tempMatches = $matchesOnDate[$d];
                             $tempMatches[] = [$teamA->id, $teamB->id];
@@ -229,9 +223,6 @@ class TournamentSeeder extends Seeder
                 if (!$selectedDate) {
                     usort($dates, fn($a, $b) => $dateMatchCount[$a] <=> $dateMatchCount[$b]);
                     foreach ($dates as $d) {
-                        if ($d === '2026-08-13' && ($teamA->name === 'Project VII' || $teamB->name === 'Project VII')) {
-                            continue;
-                        }
                         if ($teamMatchCountPerDate[$teamA->id][$d] < 2 && $teamMatchCountPerDate[$teamB->id][$d] < 2) {
                             $tempMatches = $matchesOnDate[$d];
                             $tempMatches[] = [$teamA->id, $teamB->id];
