@@ -54,7 +54,7 @@ class TournamentPublicController extends Controller
 
         // 4. Fetch all matches with team details and game scores
         $matches = MlMatch::whereIn('stage_id', $stages->pluck('id'))
-            ->with(['teamA', 'teamB', 'winnerTeam', 'games', 'stage'])
+            ->with(['teamA', 'teamB', 'winnerTeam', 'games.playerStats.player', 'stage'])
             ->orderBy('scheduled_at', 'asc')
             ->get();
 

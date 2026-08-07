@@ -220,90 +220,68 @@ const gameWinnerId = ref('');
 const gameDuration = ref(900);
 const playerStatsInput = ref([]);
 
-// OCR State
-const ocrScreenshot = ref(null);
-const ocrScreenshotUrl = ref('');
-const isOcrLoading = ref(false);
-const ocrError = ref('');
 
-const handleScreenshotChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        ocrScreenshot.value = file;
-        ocrScreenshotUrl.value = URL.createObjectURL(file);
-        ocrError.value = '';
-    }
-};
 
-const runScreenshotOcr = async () => {
-    if (!ocrScreenshot.value) {
-        alert('Silakan pilih berkas gambar/screenshot terlebih dahulu.');
-        return;
-    }
-
-    isOcrLoading.value = true;
-    ocrError.value = '';
-
-    const formData = new FormData();
-    formData.append('screenshot', ocrScreenshot.value);
-
-    try {
-        const response = await axios.post(route('admin.game.ocr', selectedMatch.value.id), formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-
-        const data = response.data;
+const loadExistingGameStats = () => {
+    if (!selectedMatch.value) return;
+    
+    // Find if the game already exists in selectedMatch.games
+    const existingGame = selectedMatch.value.games.find(g => g.game_number === activeGameNumber.value);
+    
+    if (existingGame) {
+        // Preload existing game stats!
+        gameWinnerId.value = existingGame.winner_team_id ? existingGame.winner_team_id.toString() : '';
+        gameDuration.value = existingGame.duration_seconds || 900;
         
-        // 1. Fill winner
-        if (data.winner_team_id) {
-            gameWinnerId.value = data.winner_team_id.toString();
-        }
-
-        // 2. Fill duration
-        if (data.duration_seconds) {
-            gameDuration.value = data.duration_seconds;
-        }
-
-        // 3. Fill player stats
-        if (data.player_stats && Array.isArray(data.player_stats)) {
-            let mvpFound = false;
-            data.player_stats.forEach(ocrStat => {
-                const targetPlayer = playerStatsInput.value.find(p => p.player_id === ocrStat.player_id);
-                if (targetPlayer) {
-                    if (ocrStat.hero) targetPlayer.hero = ocrStat.hero;
-                    if (ocrStat.kills !== undefined) targetPlayer.kills = ocrStat.kills;
-                    if (ocrStat.deaths !== undefined) targetPlayer.deaths = ocrStat.deaths;
-                    if (ocrStat.assists !== undefined) targetPlayer.assists = ocrStat.assists;
-                    if (ocrStat.rating !== undefined) targetPlayer.rating = ocrStat.rating;
-                    if (ocrStat.gold_earned !== undefined) targetPlayer.gold_earned = ocrStat.gold_earned;
-                    if (ocrStat.is_mvp !== undefined) {
-                        targetPlayer.is_mvp = ocrStat.is_mvp;
-                        if (ocrStat.is_mvp) mvpFound = true;
-                    }
-                }
-            });
-
-            if (mvpFound) {
-                const firstMvpIdx = playerStatsInput.value.findIndex(p => p.is_mvp);
-                if (firstMvpIdx !== -1) {
-                    playerStatsInput.value.forEach((p, idx) => {
-                        if (idx !== firstMvpIdx) p.is_mvp = false;
-                    });
-                }
+        // Map the player stats
+        playerStatsInput.value = playerStatsInput.value.map(pInput => {
+            const existingStat = existingGame.player_stats.find(stat => stat.player_id === pInput.player_id);
+            if (existingStat) {
+                return {
+                    ...pInput,
+                    hero: existingStat.hero || '',
+                    kills: existingStat.kills || 0,
+                    deaths: existingStat.deaths || 0,
+                    assists: existingStat.assists || 0,
+                    gold_earned: existingStat.gold_earned || 10000,
+                    rating: existingStat.rating !== undefined ? existingStat.rating : 6.0,
+                    is_mvp: !!existingStat.is_mvp
+                };
+            } else {
+                return {
+                    ...pInput,
+                    hero: '',
+                    kills: 0,
+                    deaths: 0,
+                    assists: 0,
+                    gold_earned: 10000,
+                    rating: 6.0,
+                    is_mvp: false
+                };
             }
-        }
-
-        alert('Analisis screenshot berhasil! Data statistik telah otomatis diisi di bawah. Silakan periksa kembali dan revisi jika ada kesalahan.');
-    } catch (err) {
-        console.error(err);
-        ocrError.value = err.response?.data?.error || 'Gagal memproses gambar. Pastikan format gambar benar dan coba lagi.';
-        alert('Gagal memproses gambar: ' + ocrError.value);
-    } finally {
-        isOcrLoading.value = false;
+        });
+    } else {
+        // No existing game, reset inputs to default/empty values
+        gameWinnerId.value = '';
+        gameDuration.value = 900;
+        playerStatsInput.value = playerStatsInput.value.map(pInput => {
+            return {
+                ...pInput,
+                hero: '',
+                kills: 0,
+                deaths: 0,
+                assists: 0,
+                gold_earned: 10000,
+                rating: 6.0,
+                is_mvp: false
+            };
+        });
     }
 };
+
+watch(activeGameNumber, () => {
+    loadExistingGameStats();
+});
 
 const openScoreModal = (match) => {
     selectedMatch.value = match;
@@ -314,11 +292,7 @@ const openScoreModal = (match) => {
     gameWinnerId.value = '';
     gameDuration.value = 900;
     
-    // Reset OCR state
-    ocrScreenshot.value = null;
-    ocrScreenshotUrl.value = '';
-    isOcrLoading.value = false;
-    ocrError.value = '';
+
     
     // Initialize stats inputs for the 10 players of team_a and team_b
     const teamAPlayers = props.players.filter(p => p.team_id === match.team_a_id);
@@ -326,7 +300,6 @@ const openScoreModal = (match) => {
     const allMatchPlayers = [...teamAPlayers, ...teamBPlayers];
 
     playerStatsInput.value = allMatchPlayers.map(p => {
-        // Try to pre-load stats if editing an existing game
         return {
             player_id: p.id,
             name: p.name,
@@ -341,6 +314,9 @@ const openScoreModal = (match) => {
             is_mvp: false
         };
     });
+
+    // Populate existing stats if editing
+    loadExistingGameStats();
 };
 
 const handleMvpCheck = (index) => {
@@ -876,47 +852,6 @@ const currentGroup = computed(() => {
 
                         <form @submit.prevent="submitGameScore" class="p-6 space-y-6">
                             
-                            <!-- AI OCR Upload Section -->
-                            <div class="bg-yellow-50/50 border border-yellow-200 rounded-2xl p-5 space-y-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="bg-yellow-500 text-slate-900 rounded-xl p-2 font-black text-lg">🤖</div>
-                                    <div>
-                                        <h5 class="text-xs font-black uppercase text-slate-800 tracking-wider">Isi Otomatis dengan AI OCR</h5>
-                                        <p class="text-[10px] text-slate-500">Unggah screenshot hasil pertandingan (end-game scoreboard) untuk mengisi semua data statistik secara otomatis.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                                    <div>
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            @change="handleScreenshotChange" 
-                                            class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200 cursor-pointer" 
-                                        />
-                                    </div>
-                                    <div class="flex gap-2 justify-end">
-                                        <button 
-                                            type="button" 
-                                            @click="runScreenshotOcr" 
-                                            :disabled="isOcrLoading || !ocrScreenshot" 
-                                            class="bg-yellow-500 hover:bg-yellow-600 disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-extrabold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wide transition flex items-center gap-2 shadow-sm"
-                                        >
-                                            <span v-if="isOcrLoading" class="animate-spin inline-block w-3.5 h-3.5 border-2 border-slate-900 border-t-transparent rounded-full"></span>
-                                            {{ isOcrLoading ? 'Menganalisis...' : 'Analisis Screenshot' }}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div v-if="ocrScreenshotUrl" class="mt-2 flex items-center gap-4 bg-white p-3 rounded-xl border border-slate-200">
-                                    <img :src="ocrScreenshotUrl" class="h-20 w-auto rounded-lg object-contain border border-slate-200 shadow-sm" alt="Preview" />
-                                    <div class="text-[10px] text-slate-500">
-                                        <span class="font-bold block text-slate-700">{{ ocrScreenshot?.name }}</span>
-                                        <span>Ukuran: {{ (ocrScreenshot?.size / 1024).toFixed(1) }} KB</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
                             <!-- Game Level settings -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                                 <div>
@@ -950,49 +885,55 @@ const currentGroup = computed(() => {
                                         <div 
                                             v-for="(player, index) in playerStatsInput.filter(p => p.team_id === selectedMatch.team_a_id)" 
                                             :key="player.player_id"
-                                            class="bg-slate-900/40 p-4 rounded-xl border border-slate-200/80 space-y-3"
+                                            class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-4 shadow-sm hover:shadow-md transition"
                                         >
-                                            <div class="flex items-center justify-between">
+                                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
                                                 <div>
-                                                    <span class="text-xs font-black text-slate-800 block uppercase">{{ player.name }}</span>
-                                                    <span class="text-[9px] text-slate-400 uppercase">{{ player.role.replace('_', ' ') }}</span>
+                                                    <span class="text-xs font-extrabold text-slate-800 block uppercase tracking-wide">{{ player.name }}</span>
+                                                    <span class="text-[9px] text-slate-400 font-bold uppercase">{{ player.role.replace('_', ' ') }}</span>
                                                 </div>
-                                                <label class="flex items-center gap-1 cursor-pointer bg-slate-100 px-2 py-0.5 rounded text-[9px] font-black uppercase">
+                                                <label class="flex items-center gap-1.5 cursor-pointer bg-yellow-50 border border-yellow-200/60 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-yellow-700 select-none hover:bg-yellow-100 transition">
                                                     <input 
                                                         type="checkbox" 
                                                         v-model="player.is_mvp" 
                                                         @change="handleMvpCheck(playerStatsInput.indexOf(player))"
-                                                        class="rounded border-slate-200 bg-slate-900 text-yellow-600 focus:ring-0 w-3 h-3"
+                                                        class="rounded border-yellow-300 bg-white text-yellow-600 focus:ring-0 w-3 h-3"
                                                     />
-                                                    MVP
+                                                    👑 MVP
                                                 </label>
                                             </div>
 
-                                            <div class="grid grid-cols-5 gap-1.5 text-xs">
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Hero</label>
-                                                    <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+                                            <div class="space-y-3.5">
+                                                <div class="grid grid-cols-3 gap-3">
+                                                    <div class="col-span-2">
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
+                                                        <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
+                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Kills</label>
-                                                    <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ Kills</label>
+                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 Deaths</label>
+                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 Assists</label>
+                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
                                                 </div>
+
                                                 <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Deaths</label>
-                                                    <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+                                                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🪙 Gold Earned</label>
+                                                    <input v-model="player.gold_earned" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-yellow-600 font-bold focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
                                                 </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Assists</label>
-                                                    <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Rating</label>
-                                                    <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-yellow-700 font-extrabold text-center" required />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-[8px] uppercase font-bold text-slate-400 mb-0.5">Gold Earned</label>
-                                                <input v-model="player.gold_earned" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-yellow-600 text-xs font-semibold" required />
                                             </div>
                                         </div>
                                     </div>
@@ -1003,49 +944,55 @@ const currentGroup = computed(() => {
                                         <div 
                                             v-for="(player, index) in playerStatsInput.filter(p => p.team_id === selectedMatch.team_b_id)" 
                                             :key="player.player_id"
-                                            class="bg-slate-900/40 p-4 rounded-xl border border-slate-200/80 space-y-3"
+                                            class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-4 shadow-sm hover:shadow-md transition"
                                         >
-                                            <div class="flex items-center justify-between">
+                                            <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
                                                 <div>
-                                                    <span class="text-xs font-black text-slate-800 block uppercase">{{ player.name }}</span>
-                                                    <span class="text-[9px] text-slate-400 uppercase">{{ player.role.replace('_', ' ') }}</span>
+                                                    <span class="text-xs font-extrabold text-slate-800 block uppercase tracking-wide">{{ player.name }}</span>
+                                                    <span class="text-[9px] text-slate-400 font-bold uppercase">{{ player.role.replace('_', ' ') }}</span>
                                                 </div>
-                                                <label class="flex items-center gap-1 cursor-pointer bg-slate-100 px-2 py-0.5 rounded text-[9px] font-black uppercase">
+                                                <label class="flex items-center gap-1.5 cursor-pointer bg-yellow-50 border border-yellow-200/60 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-yellow-700 select-none hover:bg-yellow-100 transition">
                                                     <input 
                                                         type="checkbox" 
                                                         v-model="player.is_mvp" 
                                                         @change="handleMvpCheck(playerStatsInput.indexOf(player))"
-                                                        class="rounded border-slate-200 bg-slate-900 text-yellow-600 focus:ring-0 w-3 h-3"
+                                                        class="rounded border-yellow-300 bg-white text-yellow-600 focus:ring-0 w-3 h-3"
                                                     />
-                                                    MVP
+                                                    👑 MVP
                                                 </label>
                                             </div>
 
-                                            <div class="grid grid-cols-5 gap-1.5 text-xs">
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Hero</label>
-                                                    <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+                                            <div class="space-y-3.5">
+                                                <div class="grid grid-cols-3 gap-3">
+                                                    <div class="col-span-2">
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
+                                                        <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
+                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Kills</label>
-                                                    <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ Kills</label>
+                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 Deaths</label>
+                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 Assists</label>
+                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
                                                 </div>
+
                                                 <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Deaths</label>
-                                                    <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
+                                                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🪙 Gold Earned</label>
+                                                    <input v-model="player.gold_earned" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-yellow-600 font-bold focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
                                                 </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Assists</label>
-                                                    <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-800 text-center" required />
-                                                </div>
-                                                <div>
-                                                    <label class="block text-[8px] uppercase font-bold text-slate-400">Rating</label>
-                                                    <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded px-1.5 py-1 text-yellow-700 font-extrabold text-center" required />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label class="block text-[8px] uppercase font-bold text-slate-400 mb-0.5">Gold Earned</label>
-                                                <input v-model="player.gold_earned" type="number" min="0" class="w-full bg-white border border-slate-200 rounded px-2 py-1 text-yellow-600 text-xs font-semibold" required />
                                             </div>
                                         </div>
                                     </div>

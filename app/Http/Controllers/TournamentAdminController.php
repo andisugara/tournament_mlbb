@@ -273,7 +273,7 @@ class TournamentAdminController extends Controller
         ]);
 
         $apiKey = env('FIREWORKS_API_KEY');
-        $model = env('FIREWORKS_VISION_MODEL', 'accounts/fireworks/models/minimax-m3');
+        $model = env('FIREWORKS_VISION_MODEL', 'accounts/fireworks/models/llama-v3p2-11b-vision-instruct');
 
         if (empty($apiKey)) {
             return response()->json([
@@ -298,9 +298,72 @@ class TournamentAdminController extends Controller
         }
 
         $file = $request->file('screenshot');
-        $imageBytes = file_get_contents($file->getRealPath());
-        $base64Image = base64_encode($imageBytes);
+        $imagePath = $file->getRealPath();
         $mimeType = $file->getMimeType();
+        $base64Image = null;
+
+        // Try to resize image to max width 1280px to save bandwidth and speed up API response
+        if (extension_loaded('gd')) {
+            try {
+                $imageInfo = @getimagesize($imagePath);
+                if ($imageInfo) {
+                    $width = $imageInfo[0];
+                    $height = $imageInfo[1];
+                    $type = $imageInfo[2];
+                    
+                    $maxWidth = 1280;
+                    if ($width > $maxWidth) {
+                        $newWidth = $maxWidth;
+                        $newHeight = (int)($height * ($maxWidth / $width));
+                        
+                        switch ($type) {
+                            case IMAGETYPE_JPEG:
+                                $srcImage = @imagecreatefromjpeg($imagePath);
+                                break;
+                            case IMAGETYPE_PNG:
+                                $srcImage = @imagecreatefrompng($imagePath);
+                                break;
+                            case IMAGETYPE_WEBP:
+                                $srcImage = @imagecreatefromwebp($imagePath);
+                                break;
+                            default:
+                                $srcImage = null;
+                        }
+                        
+                        if ($srcImage) {
+                            $dstImage = imagecreatetruecolor($newWidth, $newHeight);
+                            if ($type === IMAGETYPE_PNG || $type === IMAGETYPE_WEBP) {
+                                imagealphablending($dstImage, false);
+                                imagesavealpha($dstImage, true);
+                            }
+                            
+                            imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                            
+                            ob_start();
+                            if ($type === IMAGETYPE_PNG) {
+                                imagepng($dstImage, null, 6);
+                            } elseif ($type === IMAGETYPE_WEBP) {
+                                imagewebp($dstImage, null, 80);
+                            } else {
+                                imagejpeg($dstImage, null, 80);
+                            }
+                            $imageBytes = ob_get_clean();
+                            $base64Image = base64_encode($imageBytes);
+                            
+                            imagedestroy($srcImage);
+                            imagedestroy($dstImage);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('GD Image resize failed: ' . $e->getMessage());
+            }
+        }
+        
+        if (!$base64Image) {
+            $imageBytes = file_get_contents($imagePath);
+            $base64Image = base64_encode($imageBytes);
+        }
 
         $prompt = "You are an expert Mobile Legends: Bang Bang (MLBB) match analyst.
 Analyze the provided end-game screenshot (which shows the scoreboard of 10 players, 5 on Team A and 5 on Team B, with stats like KDA, Hero, Gold, Rating, and MVP).
