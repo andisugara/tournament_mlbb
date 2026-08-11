@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\DB;
 class PlayerStatsService
 {
     /**
-     * Get player statistics table data, filterable by stage ID or stage type.
+     * Get player statistics table data, filterable by stage ID, stage type, or competition ID.
      */
-    public function getPlayerStatsTable(?int $stageId = null, ?string $stageType = null): array
+    public function getPlayerStatsTable(?int $stageId = null, ?string $stageType = null, ?int $competitionId = null): array
     {
         // 1. Fetch base player stats query
         $statsQuery = PlayerGameStat::query()
@@ -39,6 +39,10 @@ class PlayerStatsService
             $statsQuery->where('stages.type', $stageType);
         }
 
+        if ($competitionId) {
+            $statsQuery->where('stages.competition_id', $competitionId);
+        }
+
         $aggregatedStats = $statsQuery->groupBy('player_game_stats.player_id')->get()->keyBy('player_id');
 
         // 2. Fetch hero counts to find the most played hero per player
@@ -53,6 +57,10 @@ class PlayerStatsService
             $heroCountsQuery->where('matches.stage_id', $stageId);
         } elseif ($stageType) {
             $heroCountsQuery->where('stages.type', $stageType);
+        }
+
+        if ($competitionId) {
+            $heroCountsQuery->where('stages.competition_id', $competitionId);
         }
 
         $heroCounts = $heroCountsQuery->groupBy('player_game_stats.player_id', 'player_game_stats.hero')
@@ -75,20 +83,37 @@ class PlayerStatsService
             $avgAssists = $pStats ? (float) $pStats->avg_assists : 0.0;
             $kda = $avgDeaths > 0 ? ($avgKills + $avgAssists) / $avgDeaths : ($avgKills + $avgAssists);
 
+            // Weighted Rating Calculation:
+            // (0.4 * Avg In-Game Rating) + (0.25 * KDA) + (0.15 * (Avg Gold / 1000)) + (2.0 * MVP Rate)
+            $avgRating = $pStats ? (float) $pStats->avg_rating : 0.0;
+            $avgGold = $pStats ? (float) $pStats->avg_gold : 0.0;
+            $mvpCount = $pStats ? (int) $pStats->mvp_count : 0;
+            $gamesPlayed = $pStats ? (int) $pStats->games_played : 0;
+            $mvpRate = $gamesPlayed > 0 ? $mvpCount / $gamesPlayed : 0.0;
+
+            if ($gamesPlayed > 0) {
+                $weightedRating = (0.4 * $avgRating) 
+                                + (0.25 * $kda) 
+                                + (0.15 * ($avgGold / 1000.0)) 
+                                + (2.0 * $mvpRate);
+            } else {
+                $weightedRating = 0.0;
+            }
+
             $result[] = [
                 'player_id' => $player->id,
                 'name' => $player->name,
                 'role' => $player->role,
                 'team_name' => $player->team->name,
                 'team_logo' => $player->team->logo,
-                'games_played' => $pStats ? (int) $pStats->games_played : 0,
+                'games_played' => $gamesPlayed,
                 'avg_kills' => round($avgKills, 1),
                 'avg_deaths' => round($avgDeaths, 1),
                 'avg_assists' => round($avgAssists, 1),
                 'avg_kda' => round($kda, 2),
-                'avg_gold' => $pStats ? (int) round($pStats->avg_gold) : 0,
-                'avg_rating' => $pStats ? round((float) $pStats->avg_rating, 2) : 0.0,
-                'mvp_count' => $pStats ? (int) $pStats->mvp_count : 0,
+                'avg_gold' => (int) round($avgGold),
+                'avg_rating' => round($weightedRating, 2),
+                'mvp_count' => $mvpCount,
                 'most_played_hero' => $mostPlayedHero,
             ];
         }
@@ -105,32 +130,28 @@ class PlayerStatsService
         $leaderboard = [];
 
         foreach ($roles as $role) {
-            // Find average ratings for players of this role
-            $players = Player::where('role', $role)
-                ->with(['team'])
-                ->get();
+            $leaderboard[$role] = [];
+        }
 
-            $playerRatings = [];
-            foreach ($players as $player) {
-                $avgRating = PlayerGameStat::where('player_id', $player->id)->avg('rating');
-                
-                // Only include if they've played at least 1 game
-                if ($avgRating !== null) {
-                    $playerRatings[] = [
-                        'player_id' => $player->id,
-                        'name' => $player->name,
-                        'role' => $player->role,
-                        'team_name' => $player->team->name,
-                        'team_logo' => $player->team->logo,
-                        'avg_rating' => round((float) $avgRating, 2),
-                    ];
-                }
+        // Fetch all player statistics (calculates custom weighted rating)
+        $allStats = $this->getPlayerStatsTable();
+
+        foreach ($allStats as $stat) {
+            if ($stat['games_played'] > 0 && isset($leaderboard[$stat['role']])) {
+                $leaderboard[$stat['role']][] = [
+                    'player_id' => $stat['player_id'],
+                    'name' => $stat['name'],
+                    'role' => $stat['role'],
+                    'team_name' => $stat['team_name'],
+                    'team_logo' => $stat['team_logo'],
+                    'avg_rating' => $stat['avg_rating'],
+                ];
             }
+        }
 
-            // Sort descending by rating
-            usort($playerRatings, fn($a, $b) => $b['avg_rating'] <=> $a['avg_rating']);
-
-            $leaderboard[$role] = $playerRatings;
+        // Sort descending by rating
+        foreach ($roles as $role) {
+            usort($leaderboard[$role], fn($a, $b) => $b['avg_rating'] <=> $a['avg_rating']);
         }
 
         return $leaderboard;
@@ -147,16 +168,18 @@ class PlayerStatsService
         $roles = ['gold_lane', 'exp_lane', 'mid_lane', 'jungle', 'roam'];
         $createdAwards = [];
 
+        // Fetch stats for all players in this competition (calculates custom weighted rating)
+        $allStats = $this->getPlayerStatsTable(null, null, $competitionId);
+
         // 1. Calculate best player per lane
         foreach ($roles as $role) {
-            $bestPlayer = Player::where('role', $role)
-                ->join('player_game_stats', 'players.id', '=', 'player_game_stats.player_id')
-                ->select('players.id', DB::raw('AVG(player_game_stats.rating) as avg_rating'))
-                ->groupBy('players.id')
-                ->orderBy('avg_rating', 'desc')
-                ->first();
+            $roleStats = array_filter($allStats, fn($stat) => $stat['role'] === $role && $stat['games_played'] > 0);
 
-            if ($bestPlayer) {
+            if (!empty($roleStats)) {
+                // Sort descending by rating
+                usort($roleStats, fn($a, $b) => $b['avg_rating'] <=> $a['avg_rating']);
+                $bestPlayerStat = $roleStats[0];
+
                 $awardType = 'best_' . str_replace('_lane', '', $role);
                 // Map role names correctly to awards
                 if ($role === 'jungle') $awardType = 'best_jungler';
@@ -165,8 +188,8 @@ class PlayerStatsService
                 $award = TournamentAward::create([
                     'competition_id' => $competitionId,
                     'award_type' => $awardType,
-                    'player_id' => $bestPlayer->id,
-                    'avg_rating' => $bestPlayer->avg_rating,
+                    'player_id' => $bestPlayerStat['player_id'],
+                    'avg_rating' => $bestPlayerStat['avg_rating'],
                 ]);
 
                 $createdAwards[] = $award->load(['player.team']);
@@ -174,18 +197,18 @@ class PlayerStatsService
         }
 
         // 2. Calculate Overall MVP (highest avg rating across all lanes)
-        $mvpPlayer = Player::join('player_game_stats', 'players.id', '=', 'player_game_stats.player_id')
-            ->select('players.id', DB::raw('AVG(player_game_stats.rating) as avg_rating'))
-            ->groupBy('players.id')
-            ->orderBy('avg_rating', 'desc')
-            ->first();
+        $activeStats = array_filter($allStats, fn($stat) => $stat['games_played'] > 0);
 
-        if ($mvpPlayer) {
+        if (!empty($activeStats)) {
+            // Sort descending by rating
+            usort($activeStats, fn($a, $b) => $b['avg_rating'] <=> $a['avg_rating']);
+            $mvpPlayerStat = $activeStats[0];
+
             $award = TournamentAward::create([
                 'competition_id' => $competitionId,
                 'award_type' => 'overall_mvp',
-                'player_id' => $mvpPlayer->id,
-                'avg_rating' => $mvpPlayer->avg_rating,
+                'player_id' => $mvpPlayerStat['player_id'],
+                'avg_rating' => $mvpPlayerStat['avg_rating'],
             ]);
 
             $createdAwards[] = $award->load(['player.team']);

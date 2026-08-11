@@ -1,16 +1,16 @@
-# Graph Report - tournament_mlbb  (2026-08-11)
+# Graph Report - tournament_mlbb  (2026-08-07)
 
 ## Corpus Check
-- 125 files · ~66,680 words
+- 125 files · ~66,557 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 613 nodes · 966 edges · 62 communities (52 shown, 10 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 68 edges (avg confidence: 0.8)
+- 613 nodes · 967 edges · 62 communities (52 shown, 10 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `79e5847d`
+- Built from commit: `463b9f41`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -55,9 +55,9 @@
 1. `MlMatch` - 29 edges
 2. `User` - 27 edges
 3. `Controller` - 24 edges
-4. `Team` - 23 edges
-5. `Stage` - 22 edges
-6. `Player` - 21 edges
+4. `Player` - 23 edges
+5. `Team` - 23 edges
+6. `Stage` - 22 edges
 7. `TestCase` - 20 edges
 8. `CompetitionSetup` - 18 edges
 9. `TournamentAdminController` - 17 edges
@@ -82,7 +82,7 @@
 
 ### Community 0 - "MlMatch"
 Cohesion: 0.07
-Nodes (21): TournamentPublicController, CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team (+13 more)
+Nodes (23): TournamentPublicController, CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team (+15 more)
 
 ### Community 1 - "Illuminate\Http\RedirectResponse"
 Cohesion: 0.08
@@ -93,8 +93,8 @@ Cohesion: 0.18
 Nodes (6): input, model, form, form, form, form
 
 ### Community 3 - "User"
-Cohesion: 0.07
-Nodes (17): User, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable (+9 more)
+Cohesion: 0.08
+Nodes (15): User, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable, AuthenticationTest, EmailVerificationTest (+7 more)
 
 ### Community 4 - "Dashboard.vue"
 Cohesion: 0.05
@@ -201,4 +201,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
   _198 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MlMatch` be split into smaller, more focused modules?**
-  _Cohesion score 0.07200229489386116 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06639427987742594 - nodes in this community are weakly interconnected._
