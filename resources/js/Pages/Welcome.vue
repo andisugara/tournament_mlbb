@@ -147,9 +147,13 @@ const unifiedColumns = computed(() => {
     ];
 });
 
-// Player stats sorting state
+// Player stats view toggle & sorting state
+const statsView = ref('overall'); // 'overall' or 'hero_pool'
 const sortKey = ref('avg_rating');
 const sortAsc = ref(false);
+
+// Leaderboard visibility state for ranks below #3
+const showAllRanks = ref({});
 
 const changeSort = (key) => {
     if (sortKey.value === key) {
@@ -170,15 +174,24 @@ const filteredPlayerStats = computed(() => {
         result = result.filter(p => 
             p.name.toLowerCase().includes(query) || 
             p.team_name.toLowerCase().includes(query) ||
-            p.most_played_hero.toLowerCase().includes(query)
+            p.most_played_hero.toLowerCase().includes(query) ||
+            (p.hero_pool_details && p.hero_pool_details.some(hd => hd.hero.toLowerCase().includes(query)))
         );
     }
     
     // Sort
     result.sort((a, b) => {
         let modifier = sortAsc.value ? 1 : -1;
-        if (a[sortKey.value] < b[sortKey.value]) return -1 * modifier;
-        if (a[sortKey.value] > b[sortKey.value]) return 1 * modifier;
+        
+        let valA = a[sortKey.value];
+        let valB = b[sortKey.value];
+        
+        if (typeof valA === 'string') {
+            return valA.localeCompare(valB) * modifier;
+        }
+        
+        if (valA < valB) return -1 * modifier;
+        if (valA > valB) return 1 * modifier;
         return 0;
     });
     
@@ -1013,15 +1026,25 @@ const currentGroup = computed(() => {
                                         <div class="text-yellow-700 font-black text-sm mt-1.5">★ {{ players[0].avg_rating }}</div>
                                     </div>
 
-                                    <!-- Top 2 & 3 Players -->
+                                    <!-- Ranks #2 and Below -->
                                     <div class="space-y-2 text-xs">
-                                        <div v-for="(p, idx) in players.slice(1, 3)" :key="p.player_id" class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200/60">
+                                        <div v-for="(p, idx) in players.slice(1, showAllRanks[lane] ? undefined : 3)" :key="p.player_id" class="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-200/60">
                                             <div class="flex items-center gap-1.5 truncate">
                                                 <span class="text-slate-400 font-bold">#{{ idx + 2 }}</span>
                                                 <span class="font-bold text-slate-700 truncate uppercase">{{ p.name.split('-')[0].trim() }}</span>
                                             </div>
                                             <span class="font-bold text-yellow-700">{{ p.avg_rating }}</span>
                                         </div>
+                                    </div>
+
+                                    <!-- See More / Show Less Button -->
+                                    <div v-if="players.length > 3" class="text-center pt-1.5 border-t border-slate-100 mt-2">
+                                        <button 
+                                            @click="showAllRanks[lane] = !showAllRanks[lane]"
+                                            class="text-[10px] font-black text-yellow-600 hover:text-yellow-700 uppercase tracking-wider focus:outline-none transition"
+                                        >
+                                            {{ showAllRanks[lane] ? '▲ Sembunyikan' : '▼ Lihat Selengkapnya' }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1057,22 +1080,43 @@ const currentGroup = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Search Bar -->
-                    <div class="flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3 max-w-md">
-                        <span class="text-slate-400 text-lg mr-2">🔍</span>
-                        <input 
-                            v-model="statsSearch" 
-                            type="text" 
-                            placeholder="Cari player, tim, atau hero favorit..." 
-                            class="bg-transparent border-none text-slate-800 text-sm focus:ring-0 w-full placeholder-slate-600 outline-none"
-                        />
+                    <!-- Search Bar & View Toggle -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-3 w-full max-w-md shadow-sm">
+                            <span class="text-slate-400 text-lg mr-2">🔍</span>
+                            <input 
+                                v-model="statsSearch" 
+                                type="text" 
+                                placeholder="Cari player, tim, atau hero..." 
+                                class="bg-transparent border-none text-slate-800 text-sm focus:ring-0 w-full placeholder-slate-600 outline-none"
+                            />
+                        </div>
+
+                        <!-- View Toggle -->
+                        <div class="flex bg-slate-100 border border-slate-200 p-1 rounded-xl self-start md:self-auto shadow-sm">
+                            <button 
+                                @click="statsView = 'overall'; sortKey = 'avg_rating'; sortAsc = false;"
+                                :class="statsView === 'overall' ? 'bg-yellow-500 text-slate-950 font-black shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'"
+                                class="px-4 py-1.5 text-xs rounded-lg transition uppercase font-black tracking-wider"
+                            >
+                                Statistik Umum
+                            </button>
+                            <button 
+                                @click="statsView = 'hero_pool'; sortKey = 'hero_pool_size'; sortAsc = false;"
+                                :class="statsView === 'hero_pool' ? 'bg-yellow-500 text-slate-950 font-black shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'"
+                                class="px-4 py-1.5 text-xs rounded-lg transition uppercase font-black tracking-wider"
+                            >
+                                Pool Hero Player
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Stats Table -->
                     <div class="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-2xl">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-sm">
-                                <thead>
+                                <!-- View 1: Overall Statistics -->
+                                <thead v-if="statsView === 'overall'">
                                     <tr class="border-b border-slate-200 bg-slate-100 text-slate-600 font-extrabold text-xs uppercase tracking-wider">
                                         <th class="p-4 cursor-pointer hover:text-slate-900" @click="changeSort('name')">Pemain</th>
                                         <th class="p-4 cursor-pointer hover:text-slate-900" @click="changeSort('team_name')">Tim</th>
@@ -1085,7 +1129,7 @@ const currentGroup = computed(() => {
                                         <th class="p-4 text-center cursor-pointer hover:text-slate-900" @click="changeSort('avg_rating')">Avg Rating</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody v-if="statsView === 'overall'">
                                     <tr 
                                         v-for="p in filteredPlayerStats" 
                                         :key="p.player_id"
@@ -1117,6 +1161,55 @@ const currentGroup = computed(() => {
                                     </tr>
                                     <tr v-if="filteredPlayerStats.length === 0">
                                         <td colspan="9" class="p-8 text-center text-slate-600">Tidak menemukan player dengan pencarian tersebut.</td>
+                                    </tr>
+                                </tbody>
+
+                                <!-- View 2: Hero Pool Statistics -->
+                                <thead v-if="statsView === 'hero_pool'">
+                                    <tr class="border-b border-slate-200 bg-slate-100 text-slate-600 font-extrabold text-xs uppercase tracking-wider">
+                                        <th class="p-4 cursor-pointer hover:text-slate-900" @click="changeSort('name')">Pemain</th>
+                                        <th class="p-4 cursor-pointer hover:text-slate-900" @click="changeSort('team_name')">Tim</th>
+                                        <th class="p-4 cursor-pointer hover:text-slate-900" @click="changeSort('role')">Role</th>
+                                        <th class="p-4 text-center cursor-pointer hover:text-slate-900" @click="changeSort('hero_pool_size')">Hero Pool Size</th>
+                                        <th class="p-4">Daftar Hero Dimainkan (Jumlah Main)</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="statsView === 'hero_pool'">
+                                    <tr 
+                                        v-for="p in filteredPlayerStats" 
+                                        :key="p.player_id"
+                                        class="border-b border-slate-200/40 hover:bg-slate-100 transition"
+                                    >
+                                        <td class="p-4 font-black text-slate-800 uppercase tracking-wide">{{ p.name }}</td>
+                                        <td class="p-4 font-bold text-slate-600 uppercase">{{ p.team_name }}</td>
+                                        <td class="p-4">
+                                            <span :class="getRoleBadgeColor(p.role)" class="border px-2.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">
+                                                {{ p.role.replace('_lane', '') }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-center font-black text-slate-800 text-sm">
+                                            {{ p.hero_pool_size }} Hero
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex flex-wrap gap-2">
+                                                <span 
+                                                    v-for="h in p.hero_pool_details" 
+                                                    :key="h.hero"
+                                                    class="bg-slate-100 border border-slate-200/60 text-slate-700 text-xs px-2.5 py-1 rounded-xl font-bold flex items-center gap-1.5 shadow-sm"
+                                                >
+                                                    🦸‍♂️ {{ h.hero }}
+                                                    <span class="bg-yellow-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded-md">
+                                                        {{ h.count }}x
+                                                    </span>
+                                                </span>
+                                                <span v-if="!p.hero_pool_details || p.hero_pool_details.length === 0" class="text-xs text-slate-400 font-medium">
+                                                    Belum memainkan hero
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="filteredPlayerStats.length === 0">
+                                        <td colspan="5" class="p-8 text-center text-slate-600">Tidak menemukan player dengan pencarian tersebut.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1229,6 +1322,81 @@ const currentGroup = computed(() => {
                                 <span class="block text-xs font-black tracking-widest uppercase">SLOGAN KOMPETISI</span>
                                 <h4 class="text-lg font-black tracking-wider mt-1.5 uppercase">🔥 MENANG ITU BONUS, KOMPAK ITU UTAMA!</h4>
                                 <p class="text-[10px] text-red-50 mt-1 uppercase font-semibold">Selamat bertanding dan semoga menjadi Juara Mobile Legends HUT RI ke-81 Kabayan Group! 🇮🇩</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Player Statistics Calculation Rules -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                            <span class="text-2xl">📊</span>
+                            <h4 class="font-extrabold text-slate-800 uppercase tracking-wide">Metode Penilaian & Perhitungan Statistik Pemain (Player Rating)</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 font-medium pb-1">
+                            Untuk menentukan leaderboard performa pemain per lane secara adil serta penentuan gelar MVP Turnamen secara objektif, nilai akhir <strong>Rating Performa Pemain (Weighted Performance Rating)</strong> dihitung menggunakan formula terbobot berikut:
+                        </p>
+                        
+                        <div class="bg-slate-50 border border-slate-200/80 p-5 rounded-xl space-y-4 font-medium text-xs">
+                            <div class="text-slate-800 font-black text-center text-xs md:text-sm border-b border-slate-200 pb-3">
+                                🏆 Rating Performa = (40% × Rata-rata Rating) + (25% × Rata-rata KDA) + (15% × Skor GPM) + (2.0 × Rasio MVP) + Bonus Hero Pool
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">⚙️ 1. Rata-rata Rating Game (Bobot 40%)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        Rata-rata dari nilai rating pertandingan resmi yang dimasukkan ke sistem. Turnamen ini menggunakan konsep <strong>Flex Role</strong>, artinya jika pemain bermain di lane yang berbeda di setiap game, statistik game tersebut akan dihitung khusus untuk lane yang dimainkan (tidak ada penalti pengurangan poin).
+                                    </p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">⚔️ 2. Rata-rata KDA (Bobot 25%)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        KDA dihitung secara kumulatif dari seluruh game yang dimainkan:
+                                        <span class="block bg-white p-2 border border-slate-100 rounded-lg mt-1.5 font-mono text-[10px] text-center shadow-sm">
+                                            KDA = (Total Kills + Total Assists) / Max(1, Total Deaths)
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 pt-4">
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">🪙 3. Gold Per Menit / GPM (Bobot 15%)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        Rata-rata GPM dihitung untuk mencegah bias pada game berdurasi lama:
+                                        <span class="block bg-white p-2 border border-slate-100 rounded-lg mt-1.5 font-mono text-[10px] text-center shadow-sm">
+                                            GPM = Gold Earned / (Durasi Game dalam Menit)
+                                        </span>
+                                        <span class="block mt-1">Skor GPM = Rata-rata GPM / 100 (misalnya 750 GPM dihitung sebagai skor 7.5).</span>
+                                    </p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">👑 4. Tingkat MVP (Bobot 20% / Maksimal Bonus +2.0)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        Rasio MVP dihitung dari jumlah gelar MVP dibagi dengan total game yang dimainkan. Pemain yang mendapatkan MVP di seluruh game mendapatkan bonus maksimal sebesar <strong>+2.0</strong> pada rating akhirnya.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 pt-4">
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">🦸‍♂️ 5. Bonus Keragaman Hero (Hero Pool Bonus)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        Apresiasi bagi pemain yang fleksibel dalam memilih hero (draf pool). Semakin banyak hero unik yang digunakan, semakin besar bonus yang didapatkan (maksimal bonus <strong>+0.5</strong>):
+                                        <span class="block bg-white p-2 border border-slate-100 rounded-lg mt-1.5 font-mono text-[10px] text-center shadow-sm">
+                                            Bonus = Min(0.5, (Hero Unik - 1) × 0.1)
+                                        </span>
+                                    </p>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <h5 class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">🔄 6. Klasemen Per Lane (Leaderboard)</h5>
+                                    <p class="text-slate-500 leading-relaxed">
+                                        Peringkat per lane ditentukan berdasarkan <strong>role yang sebenarnya dimainkan</strong> pada game tersebut. Jika seorang pemain bermain 3 game sebagai Roam dan 1 game sebagai Gold Lane, statistik 3 game Roam akan masuk ke Leaderboard Roam, dan statistik 1 game Gold Lane akan masuk ke Leaderboard Gold Lane secara adil.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -60,5 +60,6 @@
   "58": "GuestLayout.vue",
   "59": "Login.vue",
   "60": "ResetPassword.vue",
-  "61": "UpdatePasswordForm.vue"
+  "61": "UpdatePasswordForm.vue",
+  "64": "2026_08_11_000001_add_role_to_player_game_stats_table.php"
 }

@@ -14,6 +14,23 @@ const props = defineProps({
     awards: Array,
 });
 
+const HEROES_LIST = [
+    "Aamon", "Akai", "Aldous", "Alice", "Alpha", "Alucard", "Angela", "Argus", "Arlott", "Atlas",
+    "Aulus", "Aurora", "Badang", "Balmond", "Bane", "Barats", "Baxia", "Beatrix", "Belerick", "Benedetta",
+    "Brody", "Bruno", "Carmilla", "Cecilion", "Chang'e", "Chip", "Chou", "Cici", "Claude", "Clint",
+    "Cyclops", "Diggie", "Dyrroth", "Edith", "Esmeralda", "Estes", "Eudora", "Fanny", "Faramis", "Franco",
+    "Fredrinn", "Freya", "Gatotkaca", "Gloo", "Gord", "Granger", "Grock", "Guinevere", "Gusion", "Hanabi",
+    "Hanzo", "Harith", "Harley", "Hayabusa", "Helcurt", "Hilda", "Hirara", "Hylos", "Irithel", "Ixia",
+    "Jawhead", "Johnson", "Joy", "Julian", "Kadita", "Kagura", "Kaja", "Kalea", "Karina", "Karrie",
+    "Khaleed", "Khufra", "Kimmy", "Lancelot", "Lapu-Lapu", "Layla", "Leomord", "Lesley", "Ling", "Lolita",
+    "Lukas", "Lunox", "Luo Yi", "Lylia", "Marcel", "Martis", "Masha", "Mathilda", "Melissa", "Minotaur",
+    "Minsitthar", "Miya", "Moskov", "Nana", "Natan", "Natalia", "Nolan", "Novaria", "Obsidia", "Odette",
+    "Paquito", "Pharsa", "Phoveus", "Popol and Kupa", "Rafaela", "Roger", "Ruby", "Saber", "Selena", "Silvanna",
+    "Sora", "Sun", "Suyou", "Terizla", "Thamuz", "Tigreal", "Uranus", "Vale", "Valentina", "Valir",
+    "Vexana", "Wanwan", "X.Borg", "Xavier", "Yi Sun-shin", "Yin", "Yu Zhong", "Yve", "Zetian", "Zhask",
+    "Zhuxin", "Zilong"
+];
+
 // Setup Form
 const setupForm = useForm({
     name: '',
@@ -220,8 +237,6 @@ const gameWinnerId = ref('');
 const gameDuration = ref(900);
 const playerStatsInput = ref([]);
 
-
-
 const loadExistingGameStats = () => {
     if (!selectedMatch.value) return;
     
@@ -240,6 +255,7 @@ const loadExistingGameStats = () => {
                 return {
                     ...pInput,
                     hero: existingStat.hero || '',
+                    role: existingStat.role || pInput.registered_role || 'roam',
                     kills: existingStat.kills || 0,
                     deaths: existingStat.deaths || 0,
                     assists: existingStat.assists || 0,
@@ -251,6 +267,7 @@ const loadExistingGameStats = () => {
                 return {
                     ...pInput,
                     hero: '',
+                    role: pInput.registered_role || 'roam',
                     kills: 0,
                     deaths: 0,
                     assists: 0,
@@ -268,6 +285,7 @@ const loadExistingGameStats = () => {
             return {
                 ...pInput,
                 hero: '',
+                role: pInput.registered_role || 'roam',
                 kills: 0,
                 deaths: 0,
                 assists: 0,
@@ -292,8 +310,6 @@ const openScoreModal = (match) => {
     gameWinnerId.value = '';
     gameDuration.value = 900;
     
-
-    
     // Initialize stats inputs for the 10 players of team_a and team_b
     const teamAPlayers = props.players.filter(p => p.team_id === match.team_a_id);
     const teamBPlayers = props.players.filter(p => p.team_id === match.team_b_id);
@@ -303,6 +319,7 @@ const openScoreModal = (match) => {
         return {
             player_id: p.id,
             name: p.name,
+            registered_role: p.role,
             role: p.role,
             team_id: p.team_id,
             hero: '',
@@ -890,7 +907,12 @@ const currentGroup = computed(() => {
                                             <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
                                                 <div>
                                                     <span class="text-xs font-extrabold text-slate-800 block uppercase tracking-wide">{{ player.name }}</span>
-                                                    <span class="text-[9px] text-slate-400 font-bold uppercase">{{ player.role.replace('_', ' ') }}</span>
+                                                    <span v-if="player.role !== player.registered_role" class="inline-block bg-amber-100 text-amber-800 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md mt-0.5 animate-pulse">
+                                                        ⚠️ Off-Role (Daftar: {{ player.registered_role.replace('_', ' ') }})
+                                                    </span>
+                                                    <span v-else class="text-[9px] text-slate-400 font-bold uppercase">
+                                                        Daftar: {{ player.registered_role.replace('_', ' ') }}
+                                                    </span>
                                                 </div>
                                                 <label class="flex items-center gap-1.5 cursor-pointer bg-yellow-50 border border-yellow-200/60 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-yellow-700 select-none hover:bg-yellow-100 transition">
                                                     <input 
@@ -904,29 +926,39 @@ const currentGroup = computed(() => {
                                             </div>
 
                                             <div class="space-y-3.5">
-                                                <div class="grid grid-cols-3 gap-3">
-                                                    <div class="col-span-2">
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
-                                                        <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🎮 Played Role</label>
+                                                        <select v-model="player.role" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium">
+                                                            <option value="gold_lane">GOLD LANE</option>
+                                                            <option value="exp_lane">EXP LANE</option>
+                                                            <option value="mid_lane">MID LANE</option>
+                                                            <option value="jungle">JUNGLE</option>
+                                                            <option value="roam">ROAM</option>
+                                                        </select>
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
-                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
+                                                        <input v-model="player.hero" type="text" list="heroes-list" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
                                                     </div>
                                                 </div>
 
-                                                <div class="grid grid-cols-3 gap-2">
+                                                <div class="grid grid-cols-4 gap-2">
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ Kills</label>
-                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
+                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 Deaths</label>
-                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ K</label>
+                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 Assists</label>
-                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 D</label>
+                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 A</label>
+                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
                                                     </div>
                                                 </div>
 
@@ -949,7 +981,12 @@ const currentGroup = computed(() => {
                                             <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
                                                 <div>
                                                     <span class="text-xs font-extrabold text-slate-800 block uppercase tracking-wide">{{ player.name }}</span>
-                                                    <span class="text-[9px] text-slate-400 font-bold uppercase">{{ player.role.replace('_', ' ') }}</span>
+                                                    <span v-if="player.role !== player.registered_role" class="inline-block bg-amber-100 text-amber-800 text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md mt-0.5 animate-pulse">
+                                                        ⚠️ Off-Role (Daftar: {{ player.registered_role.replace('_', ' ') }})
+                                                    </span>
+                                                    <span v-else class="text-[9px] text-slate-400 font-bold uppercase">
+                                                        Daftar: {{ player.registered_role.replace('_', ' ') }}
+                                                    </span>
                                                 </div>
                                                 <label class="flex items-center gap-1.5 cursor-pointer bg-yellow-50 border border-yellow-200/60 px-2.5 py-1 rounded-xl text-[9px] font-black uppercase text-yellow-700 select-none hover:bg-yellow-100 transition">
                                                     <input 
@@ -963,29 +1000,39 @@ const currentGroup = computed(() => {
                                             </div>
 
                                             <div class="space-y-3.5">
-                                                <div class="grid grid-cols-3 gap-3">
-                                                    <div class="col-span-2">
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
-                                                        <input v-model="player.hero" type="text" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🎮 Played Role</label>
+                                                        <select v-model="player.role" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium">
+                                                            <option value="gold_lane">GOLD LANE</option>
+                                                            <option value="exp_lane">EXP LANE</option>
+                                                            <option value="mid_lane">MID LANE</option>
+                                                            <option value="jungle">JUNGLE</option>
+                                                            <option value="roam">ROAM</option>
+                                                        </select>
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
-                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">🦸‍♂️ Hero</label>
+                                                        <input v-model="player.hero" type="text" list="heroes-list" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-medium" required />
                                                     </div>
                                                 </div>
 
-                                                <div class="grid grid-cols-3 gap-2">
+                                                <div class="grid grid-cols-4 gap-2">
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ Kills</label>
-                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⭐ Rating</label>
+                                                        <input v-model="player.rating" type="number" step="0.1" min="0" max="15" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-yellow-700 font-extrabold text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500" required />
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 Deaths</label>
-                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">⚔️ K</label>
+                                                        <input v-model="player.kills" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
                                                     </div>
                                                     <div>
-                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 Assists</label>
-                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">💀 D</label>
+                                                        <input v-model="player.deaths" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1 text-center">🤝 A</label>
+                                                        <input v-model="player.assists" type="number" min="0" class="w-full bg-white border border-slate-200 rounded-xl px-1 py-2 text-xs text-slate-800 text-center focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 font-semibold" required />
                                                     </div>
                                                 </div>
 
@@ -1017,6 +1064,9 @@ const currentGroup = computed(() => {
                             </div>
 
                         </form>
+                        <datalist id="heroes-list">
+                            <option v-for="hero in HEROES_LIST" :key="hero" :value="hero" />
+                        </datalist>
                     </div>
                 </div>
 

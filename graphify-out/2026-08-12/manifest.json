@@ -645,8 +645,8 @@
     "semantic_hash": ""
   },
   "database/migrations/2026_08_11_000002_clean_hero_names_typos.php": {
-    "mtime": 1786466534.5674,
-    "ast_hash": "1e3ee03ff6929f21a67366b685ebabcf",
+    "mtime": 1786466955.0615985,
+    "ast_hash": "94120969204a8aacc82744aae21cb1e2",
     "semantic_hash": ""
   }
 }

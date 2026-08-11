@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "app/Http/Controllers/TournamentAdminController.php": {
-    "mtime": 1786107134.7374787,
-    "ast_hash": "37a83cdda6420c1331249a1219f9897e",
+    "mtime": 1786464849.1276433,
+    "ast_hash": "0f892cb7ca1a440f9743a07b0f2649b7",
     "semantic_hash": ""
   },
   "app/Http/Controllers/TournamentPublicController.php": {
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "app/Models/PlayerGameStat.php": {
-    "mtime": 1784971505.2153647,
-    "ast_hash": "51f01e29a511390c6a0eabaf27e727f1",
+    "mtime": 1786464844.5464213,
+    "ast_hash": "588d49e3b0df8c8cbdbd81c28bcaef5b",
     "semantic_hash": ""
   },
   "app/Models/Stage.php": {
@@ -145,8 +145,8 @@
     "semantic_hash": ""
   },
   "app/Services/PlayerStatsService.php": {
-    "mtime": 1786436691.3410578,
-    "ast_hash": "332e7940f21a795f6de1bf70bf498d5e",
+    "mtime": 1786469901.3160825,
+    "ast_hash": "8413e8b9c54460e04a351d1d51a1d59d",
     "semantic_hash": ""
   },
   "app/Services/StandingsService.php": {
@@ -430,8 +430,8 @@
     "semantic_hash": ""
   },
   "resources/js/Pages/Dashboard.vue": {
-    "mtime": 1786107858.2642217,
-    "ast_hash": "3c1a7db0d69cf0b0c64e66d7efac72f7",
+    "mtime": 1786466593.988908,
+    "ast_hash": "fa698e8ddb5cfa87e68164bf80c939a0",
     "semantic_hash": ""
   },
   "resources/js/Pages/Profile/Edit.vue": {
@@ -455,8 +455,8 @@
     "semantic_hash": ""
   },
   "resources/js/Pages/Welcome.vue": {
-    "mtime": 1786013335.0810215,
-    "ast_hash": "1704d4553319888bd0b26003f89288cc",
+    "mtime": 1786467893.597839,
+    "ast_hash": "8f83d3caeb6d9a0658821f716e6d2d00",
     "semantic_hash": ""
   },
   "resources/js/app.js": {
@@ -637,6 +637,16 @@
   "public/logo.png": {
     "mtime": 1784978266.0458388,
     "ast_hash": "38fd9bf0291871de5371c7aa076eb0a3",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_11_000001_add_role_to_player_game_stats_table.php": {
+    "mtime": 1786464948.0693002,
+    "ast_hash": "f7e2873e02bd0ffe7f426a103fd2d50e",
+    "semantic_hash": ""
+  },
+  "database/migrations/2026_08_11_000002_clean_hero_names_typos.php": {
+    "mtime": 1786466955.0615985,
+    "ast_hash": "94120969204a8aacc82744aae21cb1e2",
     "semantic_hash": ""
   }
 }

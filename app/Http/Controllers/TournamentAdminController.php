@@ -214,6 +214,7 @@ class TournamentAdminController extends Controller
             'duration_seconds' => 'nullable|integer',
             'player_stats' => 'required|array|size:10',
             'player_stats.*.player_id' => 'required|integer|exists:players,id',
+            'player_stats.*.role' => 'required|string|in:gold_lane,exp_lane,mid_lane,jungle,roam',
             'player_stats.*.hero' => 'required|string',
             'player_stats.*.kills' => 'required|integer|min:0',
             'player_stats.*.deaths' => 'required|integer|min:0',
@@ -246,6 +247,7 @@ class TournamentAdminController extends Controller
             PlayerGameStat::updateOrCreate(
                 ['game_id' => $game->id, 'player_id' => $stat['player_id']],
                 [
+                    'role' => $stat['role'],
                     'hero' => $stat['hero'],
                     'kills' => $stat['kills'],
                     'deaths' => $stat['deaths'],

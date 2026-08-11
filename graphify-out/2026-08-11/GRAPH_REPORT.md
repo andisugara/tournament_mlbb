@@ -1,23 +1,23 @@
-# Graph Report - tournament_mlbb  (2026-08-07)
+# Graph Report - tournament_mlbb  (2026-08-11)
 
 ## Corpus Check
-- 125 files · ~66,557 words
+- 127 files · ~68,412 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 613 nodes · 967 edges · 62 communities (52 shown, 10 thin omitted)
+- 621 nodes · 974 edges · 64 communities (54 shown, 10 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `463b9f41`
+- Built from commit: `df224edc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - MlMatch
 - Illuminate\Http\RedirectResponse
-- TextInput.vue
+- InputError.vue
 - User
 - Dashboard.vue
 - composer.json
@@ -46,26 +46,27 @@
 - .claude/CLAUDE.md
 - extraction-spec.md
 - Modal.vue
-- GuestLayout.vue
+- VerifyEmail.vue
 - Login.vue
 - ResetPassword.vue
-- UpdatePasswordForm.vue
+- TextInput.vue
+- Dropdown.vue
 
 ## God Nodes (most connected - your core abstractions)
 1. `MlMatch` - 29 edges
 2. `User` - 27 edges
 3. `Controller` - 24 edges
-4. `Player` - 23 edges
-5. `Team` - 23 edges
-6. `Stage` - 22 edges
+4. `Team` - 23 edges
+5. `Stage` - 22 edges
+6. `Player` - 21 edges
 7. `TestCase` - 20 edges
 8. `CompetitionSetup` - 18 edges
 9. `TournamentAdminController` - 17 edges
 10. `What You Must Do When Invoked` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `TournamentPublicController` --inherits--> `Controller`  [EXTRACTED]
-  app/Http/Controllers/TournamentPublicController.php → app/Http/Controllers/Controller.php
+- `up()` --calls--> `PlayerGameStat`  [INFERRED]
+  database/migrations/2026_08_11_000002_clean_hero_names_typos.php → app/Models/PlayerGameStat.php
 - `TournamentServicesTest` --inherits--> `TestCase`  [EXTRACTED]
   tests/Unit/TournamentServicesTest.php → tests/TestCase.php
 - `AuthenticatedSessionController` --inherits--> `Controller`  [EXTRACTED]
@@ -78,27 +79,27 @@
 ## Import Cycles
 - None detected.
 
-## Communities (62 total, 10 thin omitted)
+## Communities (64 total, 10 thin omitted)
 
 ### Community 0 - "MlMatch"
 Cohesion: 0.07
-Nodes (23): TournamentPublicController, CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team (+15 more)
+Nodes (21): CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team, TournamentAward (+13 more)
 
 ### Community 1 - "Illuminate\Http\RedirectResponse"
-Cohesion: 0.08
-Nodes (18): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController, PasswordResetLinkController, RegisteredUserController (+10 more)
+Cohesion: 0.07
+Nodes (19): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController, PasswordResetLinkController, RegisteredUserController (+11 more)
 
-### Community 2 - "TextInput.vue"
-Cohesion: 0.18
-Nodes (6): input, model, form, form, form, form
+### Community 2 - "InputError.vue"
+Cohesion: 0.21
+Nodes (4): form, form, form, form
 
 ### Community 3 - "User"
-Cohesion: 0.08
-Nodes (15): User, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable, AuthenticationTest, EmailVerificationTest (+7 more)
+Cohesion: 0.07
+Nodes (17): User, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable (+9 more)
 
 ### Community 4 - "Dashboard.vue"
 Cohesion: 0.05
-Nodes (25): activeDateTab, activeGameNumber, adminTab, currentGroup, editMatchForm, editPlayerForm, editTeamForm, gameDuration (+17 more)
+Nodes (26): activeDateTab, activeGameNumber, adminTab, currentGroup, editMatchForm, editPlayerForm, editTeamForm, gameDuration (+18 more)
 
 ### Community 5 - "composer.json"
 Cohesion: 0.04
@@ -110,7 +111,7 @@ Nodes (31): AppServiceProvider, autoprefixer, concurrently, Illuminate\Support\S
 
 ### Community 7 - "Welcome.vue"
 Cohesion: 0.07
-Nodes (21): activeDateTab, activeStageType, activeTab, activeTimeTab, currentGroup, expandedMatches, filteredPlayerStats, groupedMatches (+13 more)
+Nodes (22): activeDateTab, activeStageType, activeTab, activeTimeTab, currentGroup, expandedMatches, filteredPlayerStats, groupedMatches (+14 more)
 
 ### Community 8 - "scripts"
 Cohesion: 0.08
@@ -125,8 +126,8 @@ Cohesion: 0.27
 Nodes (3): LoginRequest, ProfileUpdateRequest, Illuminate\Foundation\Http\FormRequest
 
 ### Community 11 - "AuthenticatedLayout.vue"
-Cohesion: 0.12
-Nodes (9): alignmentClasses, open, props, widthClass, classes, props, classes, props (+1 more)
+Cohesion: 0.18
+Nodes (5): classes, props, classes, props, showingNavigationDropdown
 
 ### Community 12 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -168,20 +169,24 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.32
 Nodes (7): close(), closeOnEscape(), dialog, emit, maxWidthClass, props, showSlot
 
-### Community 58 - "GuestLayout.vue"
-Cohesion: 0.29
+### Community 58 - "VerifyEmail.vue"
+Cohesion: 0.40
 Nodes (3): form, props, verificationLinkSent
 
 ### Community 59 - "Login.vue"
 Cohesion: 0.29
 Nodes (4): emit, props, proxyChecked, form
 
-### Community 61 - "UpdatePasswordForm.vue"
-Cohesion: 0.40
-Nodes (3): currentPasswordInput, form, passwordInput
+### Community 61 - "TextInput.vue"
+Cohesion: 0.25
+Nodes (5): input, model, currentPasswordInput, form, passwordInput
+
+### Community 63 - "Dropdown.vue"
+Cohesion: 0.33
+Nodes (4): alignmentClasses, open, props, widthClass
 
 ## Knowledge Gaps
-- **198 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+193 more)
+- **200 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+195 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -199,6 +204,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 22 inferred relationships involving `User` (e.g. with `.store()` and `.run()`) actually correct?**
   _`User` has 22 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
-  _198 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _200 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MlMatch` be split into smaller, more focused modules?**
-  _Cohesion score 0.06639427987742594 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07052600646488393 - nodes in this community are weakly interconnected._

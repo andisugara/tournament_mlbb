@@ -12,6 +12,7 @@ class PlayerGameStat extends Model
     protected $fillable = [
         'game_id',
         'player_id',
+        'role',
         'hero',
         'kills',
         'deaths',
