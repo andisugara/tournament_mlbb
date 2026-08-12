@@ -109,9 +109,9 @@ class StandingsService
                 return $a['played'] - $b['played'];
             }
 
-            // Rule 4: Games Won
-            if ($b['games_won'] !== $a['games_won']) {
-                return $b['games_won'] - $a['games_won'];
+            // Rule 4: Games Lost (fewer lost is ranked higher)
+            if ($a['games_lost'] !== $b['games_lost']) {
+                return $a['games_lost'] - $b['games_lost'];
             }
 
             // Rule 5: Head-to-Head
