@@ -1,12 +1,12 @@
-# Graph Report - tournament_mlbb  (2026-08-11)
+# Graph Report - tournament_mlbb  (2026-08-12)
 
 ## Corpus Check
-- 127 files · ~68,495 words
+- 127 files · ~68,694 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 621 nodes · 974 edges · 64 communities (54 shown, 10 thin omitted)
-- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.8)
+- 622 nodes · 977 edges · 63 communities (53 shown, 10 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 70 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -17,7 +17,7 @@
 ## Community Hubs (Navigation)
 - MlMatch
 - Illuminate\Http\RedirectResponse
-- InputError.vue
+- TextInput.vue
 - User
 - Dashboard.vue
 - composer.json
@@ -46,19 +46,18 @@
 - .claude/CLAUDE.md
 - extraction-spec.md
 - Modal.vue
-- VerifyEmail.vue
+- GuestLayout.vue
 - Login.vue
 - ResetPassword.vue
-- TextInput.vue
-- Dropdown.vue
+- UpdatePasswordForm.vue
 
 ## God Nodes (most connected - your core abstractions)
 1. `MlMatch` - 29 edges
 2. `User` - 27 edges
 3. `Controller` - 24 edges
 4. `Team` - 23 edges
-5. `Stage` - 22 edges
-6. `Player` - 21 edges
+5. `Player` - 22 edges
+6. `Stage` - 22 edges
 7. `TestCase` - 20 edges
 8. `CompetitionSetup` - 18 edges
 9. `TournamentAdminController` - 17 edges
@@ -67,35 +66,35 @@
 ## Surprising Connections (you probably didn't know these)
 - `up()` --calls--> `PlayerGameStat`  [INFERRED]
   database/migrations/2026_08_11_000002_clean_hero_names_typos.php → app/Models/PlayerGameStat.php
+- `TournamentPublicController` --inherits--> `Controller`  [EXTRACTED]
+  app/Http/Controllers/TournamentPublicController.php → app/Http/Controllers/Controller.php
 - `TournamentServicesTest` --inherits--> `TestCase`  [EXTRACTED]
   tests/Unit/TournamentServicesTest.php → tests/TestCase.php
 - `AuthenticatedSessionController` --inherits--> `Controller`  [EXTRACTED]
   app/Http/Controllers/Auth/AuthenticatedSessionController.php → app/Http/Controllers/Controller.php
 - `ConfirmablePasswordController` --inherits--> `Controller`  [EXTRACTED]
   app/Http/Controllers/Auth/ConfirmablePasswordController.php → app/Http/Controllers/Controller.php
-- `EmailVerificationNotificationController` --inherits--> `Controller`  [EXTRACTED]
-  app/Http/Controllers/Auth/EmailVerificationNotificationController.php → app/Http/Controllers/Controller.php
 
 ## Import Cycles
 - None detected.
 
-## Communities (64 total, 10 thin omitted)
+## Communities (63 total, 10 thin omitted)
 
 ### Community 0 - "MlMatch"
-Cohesion: 0.07
-Nodes (21): CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team, TournamentAward (+13 more)
+Cohesion: 0.06
+Nodes (24): TournamentPublicController, CompetitionSetup, Game, MlMatch, Player, PlayerGameStat, Stage, Team (+16 more)
 
 ### Community 1 - "Illuminate\Http\RedirectResponse"
-Cohesion: 0.07
-Nodes (19): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController, PasswordResetLinkController, RegisteredUserController (+11 more)
+Cohesion: 0.08
+Nodes (18): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController, PasswordResetLinkController, RegisteredUserController (+10 more)
 
-### Community 2 - "InputError.vue"
-Cohesion: 0.21
-Nodes (4): form, form, form, form
+### Community 2 - "TextInput.vue"
+Cohesion: 0.18
+Nodes (6): input, model, form, form, form, form
 
 ### Community 3 - "User"
-Cohesion: 0.07
-Nodes (17): User, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable (+9 more)
+Cohesion: 0.08
+Nodes (15): User, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Foundation\Auth\User, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase, Illuminate\Notifications\Notifiable, AuthenticationTest, EmailVerificationTest (+7 more)
 
 ### Community 4 - "Dashboard.vue"
 Cohesion: 0.05
@@ -126,8 +125,8 @@ Cohesion: 0.27
 Nodes (3): LoginRequest, ProfileUpdateRequest, Illuminate\Foundation\Http\FormRequest
 
 ### Community 11 - "AuthenticatedLayout.vue"
-Cohesion: 0.18
-Nodes (5): classes, props, classes, props, showingNavigationDropdown
+Cohesion: 0.12
+Nodes (9): alignmentClasses, open, props, widthClass, classes, props, classes, props (+1 more)
 
 ### Community 12 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -169,21 +168,17 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.32
 Nodes (7): close(), closeOnEscape(), dialog, emit, maxWidthClass, props, showSlot
 
-### Community 58 - "VerifyEmail.vue"
-Cohesion: 0.40
+### Community 58 - "GuestLayout.vue"
+Cohesion: 0.29
 Nodes (3): form, props, verificationLinkSent
 
 ### Community 59 - "Login.vue"
 Cohesion: 0.29
 Nodes (4): emit, props, proxyChecked, form
 
-### Community 61 - "TextInput.vue"
-Cohesion: 0.25
-Nodes (5): input, model, currentPasswordInput, form, passwordInput
-
-### Community 63 - "Dropdown.vue"
-Cohesion: 0.33
-Nodes (4): alignmentClasses, open, props, widthClass
+### Community 61 - "UpdatePasswordForm.vue"
+Cohesion: 0.40
+Nodes (3): currentPasswordInput, form, passwordInput
 
 ## Knowledge Gaps
 - **200 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+195 more)
@@ -197,7 +192,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Why does `User` connect `User` to `MlMatch`, `Illuminate\Http\RedirectResponse`?**
   _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `Controller` connect `Illuminate\Http\RedirectResponse` to `MlMatch`?**
+- **Why does `Player` connect `MlMatch` to `Illuminate\Http\RedirectResponse`?**
   _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Are the 10 inferred relationships involving `MlMatch` (e.g. with `.index()` and `.generate()`) actually correct?**
   _`MlMatch` has 10 INFERRED edges - model-reasoned connections that need verification._
@@ -206,4 +201,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
   _200 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MlMatch` be split into smaller, more focused modules?**
-  _Cohesion score 0.07052600646488393 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06217858812529219 - nodes in this community are weakly interconnected._

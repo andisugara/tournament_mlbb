@@ -505,8 +505,8 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "app_http_controllers_tournamentadmincontroller_tournamentadmincontroller_generateplayoffs",
-      "community": 1,
-      "community_name": "Illuminate\\Http\\RedirectResponse",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": ".generateplayoffs()"
     },
     {
@@ -637,8 +637,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_http_controllers_tournamentpubliccontroller",
-      "community": 1,
-      "community_name": "Illuminate\\Http\\RedirectResponse",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "tournamentpubliccontroller.php"
     },
     {
@@ -648,8 +648,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "app_http_controllers_tournamentpubliccontroller_tournamentpubliccontroller",
-      "community": 1,
-      "community_name": "Illuminate\\Http\\RedirectResponse",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "tournamentpubliccontroller"
     },
     {
@@ -670,8 +670,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "app_http_controllers_tournamentpubliccontroller_tournamentpubliccontroller_index",
-      "community": 1,
-      "community_name": "Illuminate\\Http\\RedirectResponse",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": ".index()"
     },
     {
@@ -1426,7 +1426,7 @@
       "label": "PlayerStatsService",
       "file_type": "code",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L11",
+      "source_location": "L10",
       "_origin": "ast",
       "id": "app_services_playerstatsservice_playerstatsservice",
       "community": 0,
@@ -1437,7 +1437,7 @@
       "label": ".getPlayerStatsTable()",
       "file_type": "code",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L16",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "app_services_playerstatsservice_playerstatsservice_getplayerstatstable",
       "community": 0,
@@ -1445,10 +1445,21 @@
       "norm_label": ".getplayerstatstable()"
     },
     {
+      "label": ".getPlayerStatsGroupedByRole()",
+      "file_type": "code",
+      "source_file": "app/Services/PlayerStatsService.php",
+      "source_location": "L166",
+      "_origin": "ast",
+      "id": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
+      "community": 0,
+      "community_name": "MlMatch",
+      "norm_label": ".getplayerstatsgroupedbyrole()"
+    },
+    {
       "label": ".getLeaderboard()",
       "file_type": "code",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L211",
+      "source_location": "L258",
       "_origin": "ast",
       "id": "app_services_playerstatsservice_playerstatsservice_getleaderboard",
       "community": 0,
@@ -1459,7 +1470,7 @@
       "label": ".lockAwards()",
       "file_type": "code",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L247",
+      "source_location": "L294",
       "_origin": "ast",
       "id": "app_services_playerstatsservice_playerstatsservice_lockawards",
       "community": 0,
@@ -2914,8 +2925,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "database_seeders_databaseseeder",
-      "community": 3,
-      "community_name": "User",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "databaseseeder.php"
     },
     {
@@ -2925,8 +2936,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "database_seeders_databaseseeder_databaseseeder",
-      "community": 3,
-      "community_name": "User",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "databaseseeder"
     },
     {
@@ -2936,8 +2947,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "database_seeders_databaseseeder_databaseseeder_run",
-      "community": 3,
-      "community_name": "User",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": ".run()"
     },
     {
@@ -3497,8 +3508,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_applicationlogo",
-      "community": 11,
-      "community_name": "AuthenticatedLayout.vue",
+      "community": 58,
+      "community_name": "GuestLayout.vue",
       "norm_label": "applicationlogo.vue"
     },
     {
@@ -3563,8 +3574,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_dropdown",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "dropdown.vue"
     },
     {
@@ -3574,8 +3585,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "resources_js_components_dropdown_props",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "props"
     },
     {
@@ -3585,8 +3596,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "resources_js_components_dropdown_closeonescape",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "closeonescape()"
     },
     {
@@ -3596,8 +3607,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "resources_js_components_dropdown_widthclass",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "widthclass"
     },
     {
@@ -3607,8 +3618,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "resources_js_components_dropdown_alignmentclasses",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "alignmentclasses"
     },
     {
@@ -3618,8 +3629,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "resources_js_components_dropdown_open",
-      "community": 63,
-      "community_name": "Dropdown.vue",
+      "community": 11,
+      "community_name": "AuthenticatedLayout.vue",
       "norm_label": "open"
     },
     {
@@ -3641,7 +3652,7 @@
       "_origin": "ast",
       "id": "resources_js_components_inputerror",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "inputerror.vue"
     },
     {
@@ -3652,7 +3663,7 @@
       "_origin": "ast",
       "id": "resources_js_components_inputlabel",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "inputlabel.vue"
     },
     {
@@ -3784,7 +3795,7 @@
       "_origin": "ast",
       "id": "resources_js_components_primarybutton",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "primarybutton.vue"
     },
     {
@@ -3838,7 +3849,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_components_textinput",
-      "community": 61,
+      "community": 2,
       "community_name": "TextInput.vue",
       "norm_label": "textinput.vue"
     },
@@ -3849,7 +3860,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "resources_js_components_textinput_model",
-      "community": 61,
+      "community": 2,
       "community_name": "TextInput.vue",
       "norm_label": "model"
     },
@@ -3860,7 +3871,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "resources_js_components_textinput_input",
-      "community": 61,
+      "community": 2,
       "community_name": "TextInput.vue",
       "norm_label": "input"
     },
@@ -3893,8 +3904,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "resources_js_layouts_guestlayout",
-      "community": 2,
-      "community_name": "InputError.vue",
+      "community": 58,
+      "community_name": "GuestLayout.vue",
       "norm_label": "guestlayout.vue"
     },
     {
@@ -3905,7 +3916,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirmpassword",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "confirmpassword.vue"
     },
     {
@@ -3916,7 +3927,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirmpassword_form",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "form"
     },
     {
@@ -3927,7 +3938,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_confirmpassword_submit",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "submit()"
     },
     {
@@ -3938,7 +3949,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgotpassword",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "forgotpassword.vue"
     },
     {
@@ -3949,7 +3960,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgotpassword_form",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "form"
     },
     {
@@ -3960,7 +3971,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_forgotpassword_submit",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "submit()"
     },
     {
@@ -4004,7 +4015,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "register.vue"
     },
     {
@@ -4015,7 +4026,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_form",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "form"
     },
     {
@@ -4026,7 +4037,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_register_submit",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "submit()"
     },
     {
@@ -4081,7 +4092,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verifyemail",
       "community": 58,
-      "community_name": "VerifyEmail.vue",
+      "community_name": "GuestLayout.vue",
       "norm_label": "verifyemail.vue"
     },
     {
@@ -4092,7 +4103,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verifyemail_props",
       "community": 58,
-      "community_name": "VerifyEmail.vue",
+      "community_name": "GuestLayout.vue",
       "norm_label": "props"
     },
     {
@@ -4103,7 +4114,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verifyemail_form",
       "community": 58,
-      "community_name": "VerifyEmail.vue",
+      "community_name": "GuestLayout.vue",
       "norm_label": "form"
     },
     {
@@ -4114,7 +4125,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verifyemail_submit",
       "community": 58,
-      "community_name": "VerifyEmail.vue",
+      "community_name": "GuestLayout.vue",
       "norm_label": "submit()"
     },
     {
@@ -4125,7 +4136,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_auth_verifyemail_verificationlinksent",
       "community": 58,
-      "community_name": "VerifyEmail.vue",
+      "community_name": "GuestLayout.vue",
       "norm_label": "verificationlinksent"
     },
     {
@@ -4697,7 +4708,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updatepasswordform",
       "community": 61,
-      "community_name": "TextInput.vue",
+      "community_name": "UpdatePasswordForm.vue",
       "norm_label": "updatepasswordform.vue"
     },
     {
@@ -4708,7 +4719,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updatepasswordform_passwordinput",
       "community": 61,
-      "community_name": "TextInput.vue",
+      "community_name": "UpdatePasswordForm.vue",
       "norm_label": "passwordinput"
     },
     {
@@ -4719,7 +4730,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updatepasswordform_currentpasswordinput",
       "community": 61,
-      "community_name": "TextInput.vue",
+      "community_name": "UpdatePasswordForm.vue",
       "norm_label": "currentpasswordinput"
     },
     {
@@ -4730,7 +4741,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updatepasswordform_form",
       "community": 61,
-      "community_name": "TextInput.vue",
+      "community_name": "UpdatePasswordForm.vue",
       "norm_label": "form"
     },
     {
@@ -4741,7 +4752,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updatepasswordform_updatepassword",
       "community": 61,
-      "community_name": "TextInput.vue",
+      "community_name": "UpdatePasswordForm.vue",
       "norm_label": "updatepassword()"
     },
     {
@@ -4752,7 +4763,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updateprofileinformationform",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "updateprofileinformationform.vue"
     },
     {
@@ -4763,7 +4774,7 @@
       "_origin": "ast",
       "id": "resources_js_pages_profile_partials_updateprofileinformationform_form",
       "community": 2,
-      "community_name": "InputError.vue",
+      "community_name": "TextInput.vue",
       "norm_label": "form"
     },
     {
@@ -4968,7 +4979,7 @@
       "label": "changeStatsStage()",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L200",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_changestatsstage",
       "community": 7,
@@ -4979,7 +4990,7 @@
       "label": "getRoleBadgeColor()",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L209",
+      "source_location": "L208",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_getrolebadgecolor",
       "community": 7,
@@ -4990,7 +5001,7 @@
       "label": "formatRole()",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L220",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_formatrole",
       "community": 7,
@@ -5001,7 +5012,7 @@
       "label": "getWinnerClass()",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L224",
+      "source_location": "L223",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_getwinnerclass",
       "community": 7,
@@ -5012,7 +5023,7 @@
       "label": "getScore()",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L231",
+      "source_location": "L230",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_getscore",
       "community": 7,
@@ -5023,7 +5034,7 @@
       "label": "mvpAward",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L236",
+      "source_location": "L235",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_mvpaward",
       "community": 7,
@@ -5034,7 +5045,7 @@
       "label": "isMobileMenuOpen",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L240",
+      "source_location": "L239",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_ismobilemenuopen",
       "community": 7,
@@ -5045,7 +5056,7 @@
       "label": "tabsList",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L242",
+      "source_location": "L241",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_tabslist",
       "community": 7,
@@ -5056,7 +5067,7 @@
       "label": "activeDateTab",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L252",
+      "source_location": "L251",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_activedatetab",
       "community": 7,
@@ -5067,7 +5078,7 @@
       "label": "activeTimeTab",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L253",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_activetimetab",
       "community": 7,
@@ -5078,7 +5089,7 @@
       "label": "groupedMatches",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L255",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_groupedmatches",
       "community": 7,
@@ -5089,7 +5100,7 @@
       "label": "currentGroup",
       "file_type": "code",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L334",
+      "source_location": "L333",
       "_origin": "ast",
       "id": "resources_js_pages_welcome_currentgroup",
       "community": 7,
@@ -5169,8 +5180,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "routes_web",
-      "community": 1,
-      "community_name": "Illuminate\\Http\\RedirectResponse",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "web.php"
     },
     {
@@ -6786,8 +6797,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "illuminate_database_console_seeds_withoutmodelevents",
-      "community": 3,
-      "community_name": "User",
+      "community": 0,
+      "community_name": "MlMatch",
       "norm_label": "illuminate\\database\\console\\seeds\\withoutmodelevents"
     },
     {
@@ -9849,18 +9860,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "app_services_playerstatsservice",
-      "target": "app_models_competitionsetup",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "database/seeders/PlayoffSimulationSeeder.php",
       "source_location": "L5",
       "weight": 1.0,
@@ -10814,7 +10813,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L63",
+      "source_location": "L188",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
+      "target": "app_models_player_player"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/Services/PlayerStatsService.php",
+      "source_location": "L62",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice_getplayerstatstable",
@@ -11062,7 +11073,19 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L19",
+      "source_location": "L168",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
+      "target": "app_models_playergamestat_playergamestat"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "app/Services/PlayerStatsService.php",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice_getplayerstatstable",
@@ -11759,7 +11782,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L250",
+      "source_location": "L297",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice_lockawards",
@@ -12497,7 +12520,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L11",
+      "source_location": "L10",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice",
@@ -12508,7 +12531,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L211",
+      "source_location": "L258",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice",
@@ -12519,7 +12542,18 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L16",
+      "source_location": "L166",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_playerstatsservice_playerstatsservice",
+      "target": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/PlayerStatsService.php",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice",
@@ -12530,7 +12564,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L247",
+      "source_location": "L294",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice",
@@ -12542,10 +12576,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L221",
+      "source_location": "L330",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "app_services_playerstatsservice_playerstatsservice_getleaderboard",
+      "source": "app_services_playerstatsservice_playerstatsservice_lockawards",
       "target": "app_services_playerstatsservice_playerstatsservice_getplayerstatstable",
       "confidence_score": 1.0
     },
@@ -12554,11 +12588,23 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/Services/PlayerStatsService.php",
-      "source_location": "L256",
+      "source_location": "L268",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "app_services_playerstatsservice_playerstatsservice_getleaderboard",
+      "target": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/Services/PlayerStatsService.php",
+      "source_location": "L303",
       "weight": 1.0,
       "_origin": "ast",
       "source": "app_services_playerstatsservice_playerstatsservice_lockawards",
-      "target": "app_services_playerstatsservice_playerstatsservice_getplayerstatstable",
+      "target": "app_services_playerstatsservice_playerstatsservice_getplayerstatsgroupedbyrole",
       "confidence_score": 1.0
     },
     {
@@ -16099,7 +16145,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L252",
+      "source_location": "L251",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16132,7 +16178,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L253",
+      "source_location": "L252",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16154,7 +16200,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L200",
+      "source_location": "L199",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16165,7 +16211,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L334",
+      "source_location": "L333",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16198,7 +16244,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L220",
+      "source_location": "L219",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16209,7 +16255,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L209",
+      "source_location": "L208",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16220,7 +16266,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L231",
+      "source_location": "L230",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16231,7 +16277,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L224",
+      "source_location": "L223",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16242,7 +16288,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L255",
+      "source_location": "L254",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16253,7 +16299,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L240",
+      "source_location": "L239",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16264,7 +16310,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L236",
+      "source_location": "L235",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",
@@ -16385,7 +16431,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "resources/js/Pages/Welcome.vue",
-      "source_location": "L242",
+      "source_location": "L241",
       "weight": 1.0,
       "_origin": "ast",
       "source": "resources_js_pages_welcome",

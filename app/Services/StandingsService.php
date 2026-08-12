@@ -99,21 +99,26 @@ class StandingsService
                 return $b['wins'] - $a['wins'];
             }
 
-            // Rule 2: Head-to-Head
-            $aBeatB = $h2hMatrix[$a['team_id']][$b['team_id']] ?? 0;
-            $bBeatA = $h2hMatrix[$b['team_id']][$a['team_id']] ?? 0;
-            if ($aBeatB !== $bBeatA) {
-                return $bBeatA - $aBeatB; // Less wins = higher index = ranked lower. So if B beat A, B should be placed higher (return positive index difference)
-            }
-
-            // Rule 3: Net Game Win
+            // Rule 2: Net Game Win
             if ($b['net_games'] !== $a['net_games']) {
                 return $b['net_games'] - $a['net_games'];
+            }
+
+            // Rule 3: Match Played (fewer played is ranked higher)
+            if ($a['played'] !== $b['played']) {
+                return $a['played'] - $b['played'];
             }
 
             // Rule 4: Games Won
             if ($b['games_won'] !== $a['games_won']) {
                 return $b['games_won'] - $a['games_won'];
+            }
+
+            // Rule 5: Head-to-Head
+            $aBeatB = $h2hMatrix[$a['team_id']][$b['team_id']] ?? 0;
+            $bBeatA = $h2hMatrix[$b['team_id']][$a['team_id']] ?? 0;
+            if ($aBeatB !== $bBeatA) {
+                return $bBeatA - $aBeatB; // If B beat A, B ranks higher (positive index difference)
             }
 
             // Fallback: Name

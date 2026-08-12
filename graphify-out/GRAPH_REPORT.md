@@ -1,16 +1,16 @@
 # Graph Report - tournament_mlbb  (2026-08-12)
 
 ## Corpus Check
-- 127 files · ~68,694 words
+- 127 files · ~68,759 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 622 nodes · 977 edges · 63 communities (53 shown, 10 thin omitted)
+- 623 nodes · 978 edges · 63 communities (53 shown, 10 thin omitted)
 - Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 70 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `df224edc`
+- Built from commit: `d2a90afe`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -109,8 +109,8 @@ Cohesion: 0.06
 Nodes (31): AppServiceProvider, autoprefixer, concurrently, Illuminate\Support\ServiceProvider, @inertiajs/vue3, laravel-vite-plugin, devDependencies, autoprefixer (+23 more)
 
 ### Community 7 - "Welcome.vue"
-Cohesion: 0.07
-Nodes (22): activeDateTab, activeStageType, activeTab, activeTimeTab, currentGroup, expandedMatches, filteredPlayerStats, groupedMatches (+14 more)
+Cohesion: 0.06
+Nodes (23): activeDateTab, activeStageType, activeTab, activeTimeTab, currentGroup, expandedMatches, filteredPlayerStats, groupedMatches (+15 more)
 
 ### Community 8 - "scripts"
 Cohesion: 0.08
@@ -181,7 +181,7 @@ Cohesion: 0.40
 Nodes (3): currentPasswordInput, form, passwordInput
 
 ## Knowledge Gaps
-- **200 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+195 more)
+- **201 isolated node(s):** `$schema`, `name`, `type`, `description`, `laravel` (+196 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -199,6 +199,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 22 inferred relationships involving `User` (e.g. with `.store()` and `.run()`) actually correct?**
   _`User` has 22 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
-  _200 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _201 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `MlMatch` be split into smaller, more focused modules?**
   _Cohesion score 0.06217858812529219 - nodes in this community are weakly interconnected._
