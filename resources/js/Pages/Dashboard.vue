@@ -12,6 +12,7 @@ const props = defineProps({
     matches: Array,
     standings: Array,
     awards: Array,
+    canUseAnalyzer: Boolean,
 });
 
 const HEROES_LIST = [
@@ -384,6 +385,153 @@ const submitGameScore = () => {
 // Admin tabs
 const adminTab = ref('matches');
 
+// AI Analyzer state
+const teamAId = ref('');
+const teamBId = ref('');
+const isAnalyzing = ref(false);
+const analysisResult = ref('');
+const analysisError = ref('');
+
+const runAnalysis = async () => {
+    if (!teamAId.value || !teamBId.value) {
+        analysisError.value = 'Silakan pilih Tim Kiri dan Tim Kanan terlebih dahulu.';
+        return;
+    }
+    if (teamAId.value === teamBId.value) {
+        analysisError.value = 'Tim Kiri dan Tim Kanan tidak boleh sama.';
+        return;
+    }
+
+    isAnalyzing.value = true;
+    analysisResult.value = '';
+    analysisError.value = '';
+
+    try {
+        const response = await axios.post(route('admin.team-analysis'), {
+            team_a_id: teamAId.value,
+            team_b_id: teamBId.value
+        });
+        analysisResult.value = response.data.analysis;
+    } catch (err) {
+        analysisError.value = err.response?.data?.error || 'Gagal melakukan analisis. Periksa koneksi API Anda.';
+    } finally {
+        isAnalyzing.value = false;
+    }
+};
+
+const parseInlineMarkdown = (text) => {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-extrabold text-slate-900">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em class="italic text-slate-800">$1</em>');
+};
+
+const renderHtmlTable = (headers, rows) => {
+    let html = '<div class="overflow-x-auto my-4 border border-slate-200 rounded-2xl shadow-sm"><table class="w-full text-left border-collapse text-xs">';
+    html += '<thead><tr class="bg-slate-100 border-b border-slate-200 text-slate-600 font-extrabold uppercase text-[10px]">';
+    headers.forEach(h => {
+        html += `<th class="p-3 font-black">${h}</th>`;
+    });
+    html += '</tr></thead>';
+    html += '<tbody class="divide-y divide-slate-100 bg-white">';
+    rows.forEach(row => {
+        html += '<tr class="hover:bg-slate-50 transition">';
+        row.forEach(cell => {
+            let parsedCell = parseInlineMarkdown(cell);
+            html += `<td class="p-3 font-semibold text-slate-700">${parsedCell}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+};
+
+const formattedAnalysis = computed(() => {
+    if (!analysisResult.value) return '';
+
+    let lines = analysisResult.value.split('\n');
+    let html = '';
+    let inList = false;
+    let inTable = false;
+    let tableHeaders = [];
+    let tableRows = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+
+        // Handle tables
+        if (line.startsWith('|')) {
+            if (!inTable) {
+                inTable = true;
+                tableHeaders = [];
+                tableRows = [];
+            }
+            let cells = line.split('|').map(c => c.trim());
+            if (cells[0] === '') cells.shift();
+            if (cells[cells.length - 1] === '') cells.pop();
+
+            if (line.includes('---')) {
+                continue;
+            }
+
+            if (tableHeaders.length === 0) {
+                tableHeaders = cells;
+            } else {
+                tableRows.push(cells);
+            }
+            continue;
+        } else {
+            if (inTable) {
+                html += renderHtmlTable(tableHeaders, tableRows);
+                inTable = false;
+                tableHeaders = [];
+                tableRows = [];
+            }
+        }
+
+        // Handle list items
+        if (line.startsWith('- ') || line.startsWith('* ')) {
+            if (!inList) {
+                html += '<ul class="space-y-1.5 list-disc list-inside mb-4">';
+                inList = true;
+            }
+            let content = parseInlineMarkdown(line.substring(2));
+            html += `<li class="text-xs text-slate-600 leading-relaxed">${content}</li>`;
+            continue;
+        } else {
+            if (inList) {
+                html += '</ul>';
+                inList = false;
+            }
+        }
+
+        // Handle headers
+        if (line.startsWith('### ')) {
+            let content = parseInlineMarkdown(line.substring(4));
+            html += `<h4 class="text-sm font-black text-slate-800 mt-5 mb-2 uppercase tracking-wide border-l-4 border-yellow-500 pl-2">${content}</h4>`;
+        } else if (line.startsWith('## ')) {
+            let content = parseInlineMarkdown(line.substring(3));
+            html += `<h3 class="text-base font-black text-slate-900 mt-7 mb-3 border-b pb-1.5 border-slate-200 uppercase tracking-wider">${content}</h3>`;
+        } else if (line.startsWith('# ')) {
+            let content = parseInlineMarkdown(line.substring(2));
+            html += `<h2 class="text-lg font-black text-slate-950 mt-8 mb-4 border-b-2 pb-2 border-slate-300 uppercase tracking-widest">${content}</h2>`;
+        } else if (line === '') {
+            html += '<div class="h-2"></div>';
+        } else {
+            let content = parseInlineMarkdown(line);
+            html += `<p class="text-xs text-slate-600 leading-relaxed mb-3">${content}</p>`;
+        }
+    }
+
+    if (inTable) {
+        html += renderHtmlTable(tableHeaders, tableRows);
+    }
+    if (inList) {
+        html += '</ul>';
+    }
+
+    return html;
+});
+
 // Date Tabs Scheduling States
 const activeDateTab = ref('');
 
@@ -615,6 +763,7 @@ const currentGroup = computed(() => {
                         <button @click="adminTab = 'matches'" :class="adminTab === 'matches' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Jadwal & Input Score</button>
                         <button @click="adminTab = 'standings'" :class="adminTab === 'standings' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Klasemen & Award</button>
                         <button @click="adminTab = 'teams'" :class="adminTab === 'teams' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">Manage Teams & Players</button>
+                        <button v-if="canUseAnalyzer" @click="adminTab = 'analyzer'" :class="adminTab === 'analyzer' ? 'border-yellow-500 text-yellow-700' : 'border-transparent text-slate-600 hover:text-slate-900'" class="border-b-2 px-4 py-2 font-bold text-sm transition">🔮 AI Team Analyzer</button>
                     </div>
 
                     <!-- Tab content: Matches -->
@@ -848,6 +997,73 @@ const currentGroup = computed(() => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab content: AI Team Analyzer -->
+                    <div v-if="adminTab === 'analyzer' && canUseAnalyzer" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xl space-y-6">
+                        <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                            <div>
+                                <h4 class="text-lg font-black uppercase text-slate-700 tracking-wide">🔮 AI Team Analyzer (Fireworks API)</h4>
+                                <p class="text-xs text-slate-600 mt-1">Lakukan analisis taktis mendalam untuk menyusun strategi memenangkan Tim Kiri atas Tim Kanan.</p>
+                            </div>
+                            <span class="text-xs bg-yellow-500/10 text-yellow-700 font-bold px-3 py-1 rounded-full border border-yellow-500/20">Private Menu</span>
+                        </div>
+
+                        <!-- Config & Selection Inputs -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-slate-600 font-bold mb-2">Tim Kiri (Target Menang)</label>
+                                <select 
+                                    v-model="teamAId" 
+                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800"
+                                >
+                                    <option value="" disabled selected>Pilih Tim Kiri</option>
+                                    <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider text-slate-600 font-bold mb-2">Tim Kanan (Lawan)</label>
+                                <select 
+                                    v-model="teamBId" 
+                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800"
+                                >
+                                    <option value="" disabled selected>Pilih Tim Kanan</option>
+                                    <option v-for="t in teams" :key="t.id" :value="t.id">{{ t.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-start">
+                            <button 
+                                @click="runAnalysis" 
+                                :disabled="isAnalyzing"
+                                class="bg-yellow-500 hover:bg-yellow-600 disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition shadow-md flex items-center gap-2"
+                            >
+                                <span v-if="isAnalyzing" class="animate-spin text-sm">🔄</span>
+                                {{ isAnalyzing ? 'Sedang Menganalisis...' : '⚡ Mulai Analisis Taktis' }}
+                            </button>
+                        </div>
+
+                        <!-- Error Alert -->
+                        <div v-if="analysisError" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-xs font-semibold">
+                            ⚠️ {{ analysisError }}
+                        </div>
+
+                        <!-- Analysis Result Output Container -->
+                        <div v-if="analysisResult" class="bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 space-y-4 shadow-inner">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                                <span class="text-xs font-black uppercase text-yellow-600 tracking-wider">Laporan Hasil Analisis Taktis</span>
+                                <button 
+                                    @click="analysisResult = ''" 
+                                    class="text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase"
+                                >
+                                    Bersihkan
+                                </button>
+                            </div>
+                            <!-- Output markdown rendered as HTML -->
+                            <div class="prose prose-sm max-w-none text-slate-700 text-xs leading-relaxed space-y-3" v-html="formattedAnalysis"></div>
                         </div>
                     </div>
 

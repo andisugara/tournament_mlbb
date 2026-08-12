@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/players', [TournamentAdminController::class, 'storePlayer'])->name('admin.players.store');
     Route::patch('/admin/players/{player}', [TournamentAdminController::class, 'updatePlayer'])->name('admin.players.update');
     Route::delete('/admin/players/{player}', [TournamentAdminController::class, 'deletePlayer'])->name('admin.players.destroy');
+    
+    // AI Team Analyzer route
+    Route::post('/admin/team-analysis', [TournamentAdminController::class, 'analyzeTeams'])->name('admin.team-analysis');
 });
 
 require __DIR__.'/auth.php';

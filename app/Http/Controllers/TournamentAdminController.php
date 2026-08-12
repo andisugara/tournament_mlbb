@@ -18,6 +18,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class TournamentAdminController extends Controller
 {
@@ -41,7 +43,7 @@ class TournamentAdminController extends Controller
     /**
      * Show the Admin Dashboard.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $competition = CompetitionSetup::orderBy('id', 'desc')->first();
         $stages = $competition ? Stage::where('competition_id', $competition->id)->get() : collect([]);
@@ -59,6 +61,8 @@ class TournamentAdminController extends Controller
         $standings = $regularStage ? $this->standingsService->getStandings($regularStage) : [];
         $awards = $competition ? $competition->awards()->with('player.team')->get() : [];
 
+        $canUseAnalyzer = $request->query('visible') === 'true';
+
         return Inertia::render('Dashboard', [
             'competition' => $competition,
             'stages' => $stages,
@@ -67,6 +71,7 @@ class TournamentAdminController extends Controller
             'matches' => $matches,
             'standings' => $standings,
             'awards' => $awards,
+            'canUseAnalyzer' => $canUseAnalyzer,
         ]);
     }
 
@@ -601,5 +606,159 @@ Return a JSON object conforming exactly to this structure:
         $player->update($request->only('team_id', 'name', 'role'));
 
         return redirect()->back()->with('success', 'Data pemain berhasil diperbarui.');
+    }
+
+    public function analyzeTeams(Request $request): \Illuminate\Http\JsonResponse
+    {
+        if (!auth()->check()) {
+            return response()->json(['error' => 'Akses ditolak.'], 403);
+        }
+
+        $request->validate([
+            'team_a_id' => 'required|integer|exists:teams,id',
+            'team_b_id' => 'required|integer|exists:teams,id',
+        ]);
+
+        $teamAId = $request->input('team_a_id');
+        $teamBId = $request->input('team_b_id');
+        $apiKey = env('FIREWORKS_API_KEY');
+
+        if (!$apiKey) {
+            return response()->json(['error' => 'FIREWORKS_API_KEY belum dikonfigurasi di file .env backend.'], 500);
+        }
+
+        if ($teamAId == $teamBId) {
+            return response()->json(['error' => 'Tim kiri dan tim kanan tidak boleh sama.'], 400);
+        }
+
+        try {
+            $teamA = Team::findOrFail($teamAId);
+            $teamB = Team::findOrFail($teamBId);
+
+            $teamAPlayers = Player::where('team_id', $teamAId)->get();
+            $teamBPlayers = Player::where('team_id', $teamBId)->get();
+
+            $allPlayerStats = collect($this->playerStatsService->getPlayerStatsTable())->keyBy('player_id');
+            $playerIds = $teamAPlayers->pluck('id')->merge($teamBPlayers->pluck('id'))->toArray();
+
+            $laneSwaps = DB::table('player_game_stats')
+                ->select('player_id', 'role', DB::raw('COUNT(*) as count'))
+                ->whereIn('player_id', $playerIds)
+                ->groupBy('player_id', 'role')
+                ->get()
+                ->groupBy('player_id');
+
+            // Compile Team A string
+            $teamAData = "";
+            foreach ($teamAPlayers as $p) {
+                $stats = $allPlayerStats->get($p->id);
+                $swaps = $laneSwaps->get($p->id);
+                $swapStr = "";
+                if ($swaps) {
+                    $swapParts = [];
+                    foreach ($swaps as $s) {
+                        $swapParts[] = ($s->role ?: $p->role) . " (" . $s->count . "x)";
+                    }
+                    $swapStr = implode(", ", $swapParts);
+                } else {
+                    $swapStr = "Belum main";
+                }
+
+                $heroPoolStr = "";
+                if ($stats && isset($stats['hero_pool_details'])) {
+                    $hParts = [];
+                    foreach ($stats['hero_pool_details'] as $h) {
+                        $hParts[] = $h['hero'] . " (" . $h['count'] . "x)";
+                    }
+                    $heroPoolStr = implode(", ", $hParts);
+                } else {
+                    $heroPoolStr = "-";
+                }
+
+                $teamAData .= "- **{$p->name}** (Registered: {$p->role}):\n";
+                $teamAData .= "  * Games Played: " . ($stats['games_played'] ?? 0) . "\n";
+                $teamAData .= "  * Avg Rating: " . ($stats['avg_rating'] ?? 0) . " | KDA: " . ($stats['avg_kda'] ?? 0) . " | MVP: " . ($stats['mvp_count'] ?? 0) . "\n";
+                $teamAData .= "  * Roles Played in Games: {$swapStr}\n";
+                $teamAData .= "  * Hero Pool: {$heroPoolStr}\n\n";
+            }
+
+            // Compile Team B string
+            $teamBData = "";
+            foreach ($teamBPlayers as $p) {
+                $stats = $allPlayerStats->get($p->id);
+                $swaps = $laneSwaps->get($p->id);
+                $swapStr = "";
+                if ($swaps) {
+                    $swapParts = [];
+                    foreach ($swaps as $s) {
+                        $swapParts[] = ($s->role ?: $p->role) . " (" . $s->count . "x)";
+                    }
+                    $swapStr = implode(", ", $swapParts);
+                } else {
+                    $swapStr = "Belum main";
+                }
+
+                $heroPoolStr = "";
+                if ($stats && isset($stats['hero_pool_details'])) {
+                    $hParts = [];
+                    foreach ($stats['hero_pool_details'] as $h) {
+                        $hParts[] = $h['hero'] . " (" . $h['count'] . "x)";
+                    }
+                    $heroPoolStr = implode(", ", $hParts);
+                } else {
+                    $heroPoolStr = "-";
+                }
+
+                $teamBData .= "- **{$p->name}** (Registered: {$p->role}):\n";
+                $teamBData .= "  * Games Played: " . ($stats['games_played'] ?? 0) . "\n";
+                $teamBData .= "  * Avg Rating: " . ($stats['avg_rating'] ?? 0) . " | KDA: " . ($stats['avg_kda'] ?? 0) . " | MVP: " . ($stats['mvp_count'] ?? 0) . "\n";
+                $teamBData .= "  * Roles Played in Games: {$swapStr}\n";
+                $teamBData .= "  * Hero Pool: {$heroPoolStr}\n\n";
+            }
+
+            $prompt = "Kamu adalah analis, pelatih, dan strategist profesional esports Mobile Legends: Bang Bang (MLBB) kelas dunia (MPL).\n";
+            $prompt .= "Tugas utama Anda adalah membuat **analisis taktis mendalam** agar **Tim A ({$teamA->name})** bisa **mengalahkan** **Tim B ({$teamB->name})**.\n\n";
+            $prompt .= "Berikut adalah data statistik, roster, pool hero, dan histori lane swap untuk kedua tim:\n\n";
+            $prompt .= "=== DATA TIM A ({$teamA->name} - Target Menang) ===\n";
+            $prompt .= $teamAData . "\n";
+            $prompt .= "=== DATA TIM B ({$teamB->name} - Lawan yang Harus Dikalahkan) ===\n";
+            $prompt .= $teamBData . "\n";
+            $prompt .= "Tulislah laporan analisis taktis dalam Bahasa Indonesia yang berfokus penuh pada hal-hal berikut:\n\n";
+            $prompt .= "1. **KEKUATAN UTAMA TIM B (Lawan)**: Siapa pemain paling berbahaya di Tim B berdasarkan rating/KDA? Bagaimana gaya permainan mereka dan hero apa saja yang sering mereka pick?\n";
+            $prompt .= "2. **REKOMENDASI BAN UNTUK TIM A**: Berdasarkan statistik hero pool Tim B di atas, sebutkan minimal 3-5 hero andalan pemain Tim B yang **wajib di-BAN** oleh Tim A beserta alasan taktisnya.\n";
+            $prompt .= "3. **REKOMENDASI PICK & COUNTER-DRAFT UNTUK TIM A**: Hero apa saja yang harus diamankan Tim A untuk meng-counter hero andalan Tim B? Berikan rekomendasi pick berdasarkan hero pool pemain Tim A.\n";
+            $prompt .= "4. **POLA SWAP LANE & PERMAINAN**: Tunjukkan jika ada pemain Tim B yang sering bertukar lane/role (berdasarkan data *Roles Played in Games*). Bagaimana Tim A harus mengantisipasi rotasi ini?\n";
+            $prompt .= "5. **KUNCI KEMENANGAN (WIN CONDITION)**: Rencana taktis step-by-step in-game (Early Game, Mid Game, Late Game) untuk menumbangkan Tim B.\n\n";
+            $prompt .= "Catatan: Jangan memotong analisis Anda di tengah jalan. Tulislah secara lengkap, padat, dan gunakan format Markdown (tabel, poin, bold) agar mudah dibaca oleh pelatih/pemain.";
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(120)->post('https://api.fireworks.ai/inference/v1/chat/completions', [
+                'model' => env('FIREWORKS_CHAT_MODEL', 'accounts/fireworks/models/deepseek-v4-flash-0731'),
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'temperature' => 0.3,
+                'max_tokens' => 4096
+            ]);
+
+            if ($response->failed()) {
+                return response()->json([
+                    'error' => 'API Fireworks error: ' . $response->body()
+                ], $response->status());
+            }
+
+            $resJson = $response->json();
+            $analysis = $resJson['choices'][0]['message']['content'] ?? 'Tidak ada hasil analisis.';
+
+            return response()->json([
+                'analysis' => $analysis
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
