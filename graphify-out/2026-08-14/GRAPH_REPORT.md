@@ -1,7 +1,7 @@
-# Graph Report - tournament_mlbb  (2026-08-14)
+# Graph Report - tournament_mlbb  (2026-08-12)
 
 ## Corpus Check
-- 127 files · ~70,423 words
+- 127 files · ~70,385 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,14 +10,14 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2420d2fe`
+- Built from commit: `e213024e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - MlMatch
 - Illuminate\Http\Request
-- TextInput.vue
+- InputError.vue
 - User
 - Dashboard.vue
 - composer.json
@@ -46,10 +46,10 @@
 - .claude/CLAUDE.md
 - extraction-spec.md
 - Modal.vue
-- GuestLayout.vue
+- VerifyEmail.vue
 - Login.vue
 - ResetPassword.vue
-- UpdatePasswordForm.vue
+- TextInput.vue
 - Dropdown.vue
 - loadExistingGameStats
 - parseInlineMarkdown
@@ -91,9 +91,9 @@ Nodes (24): TournamentPublicController, CompetitionSetup, Game, MlMatch, Player,
 Cohesion: 0.08
 Nodes (19): AuthenticatedSessionController, ConfirmablePasswordController, EmailVerificationNotificationController, EmailVerificationPromptController, NewPasswordController, PasswordController, PasswordResetLinkController, RegisteredUserController (+11 more)
 
-### Community 2 - "TextInput.vue"
-Cohesion: 0.18
-Nodes (6): input, model, form, form, form, form
+### Community 2 - "InputError.vue"
+Cohesion: 0.21
+Nodes (4): form, form, form, form
 
 ### Community 3 - "User"
 Cohesion: 0.08
@@ -128,7 +128,7 @@ Cohesion: 0.27
 Nodes (3): LoginRequest, ProfileUpdateRequest, Illuminate\Foundation\Http\FormRequest
 
 ### Community 11 - "AuthenticatedLayout.vue"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (5): classes, props, classes, props, showingNavigationDropdown
 
 ### Community 12 - "graphify reference: extra exports and benchmark"
@@ -171,17 +171,17 @@ Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphif
 Cohesion: 0.32
 Nodes (7): close(), closeOnEscape(), dialog, emit, maxWidthClass, props, showSlot
 
-### Community 58 - "GuestLayout.vue"
-Cohesion: 0.29
+### Community 58 - "VerifyEmail.vue"
+Cohesion: 0.40
 Nodes (3): form, props, verificationLinkSent
 
 ### Community 59 - "Login.vue"
 Cohesion: 0.29
 Nodes (4): emit, props, proxyChecked, form
 
-### Community 61 - "UpdatePasswordForm.vue"
-Cohesion: 0.40
-Nodes (3): currentPasswordInput, form, passwordInput
+### Community 61 - "TextInput.vue"
+Cohesion: 0.25
+Nodes (5): input, model, currentPasswordInput, form, passwordInput
 
 ### Community 62 - "Dropdown.vue"
 Cohesion: 0.33

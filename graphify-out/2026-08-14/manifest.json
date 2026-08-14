@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   "app/Services/BracketGeneratorService.php": {
-    "mtime": 1786725255.4863355,
-    "ast_hash": "17f02f37a60abc5a39719723e87ccffd",
+    "mtime": 1786725184.965098,
+    "ast_hash": "582b61adad91a101bd993f0df13b8615",
     "semantic_hash": ""
   },
   "app/Services/MatchPropagationService.php": {

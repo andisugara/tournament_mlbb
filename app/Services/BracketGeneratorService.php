@@ -91,7 +91,7 @@ class BracketGeneratorService
                     'bracket_type' => 'UPPER',
                     'round_name' => 'Upper Bracket Round 1',
                     'team_a_seed' => 3,
-                    'team_b_seed' => 6,
+                    'team_b_seed' => 5,
                     'feeds_win_to_match_code' => 'UB_R2_M2',
                     'feeds_win_to_slot' => 'team_b',
                 ],
@@ -100,7 +100,7 @@ class BracketGeneratorService
                     'bracket_type' => 'UPPER',
                     'round_name' => 'Upper Bracket Round 1',
                     'team_a_seed' => 4,
-                    'team_b_seed' => 5,
+                    'team_b_seed' => 6,
                     'feeds_win_to_match_code' => 'UB_R2_M1',
                     'feeds_win_to_slot' => 'team_b',
                 ],
@@ -354,6 +354,13 @@ class BracketGeneratorService
         $gfBo = $competition ? $competition->playoff_gf_best_of : 7;
 
         // Delete existing matches for this stage to avoid duplication
+        // First nullify self-referential match keys to avoid foreign key cascade limit issues (e.g. MySQL error 6575)
+        MlMatch::where('stage_id', $stage->id)->update([
+            'feeds_win_to_match_id' => null,
+            'feeds_lose_to_match_id' => null,
+            'team_a_source_match_id' => null,
+            'team_b_source_match_id' => null,
+        ]);
         MlMatch::where('stage_id', $stage->id)->delete();
 
         $createdMatches = [];
